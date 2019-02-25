@@ -1,0 +1,678 @@
+[p PRO_MODE GLOBOPT AUTOSTATIC PIC14 PIC14E SPEEDOPT ]
+[d version 1.1 ]
+[d edition pro ]
+[d chip 16F1527 ]
+[d frameptr 6 ]
+"212 C:\Users\john\Dropbox\ET Systems\Multi_RX\Testjig\Multi_RX_testjig.X\Multi_RX_testjig_v1.c
+[e E3673 . `uc
+current_sink_off 0
+current_sink_on 1
+sampling_ADC 2
+updating_PWM 3
+]
+"216
+[e E3679 . `uc
+pickit_finish 0
+pickit_start 1
+pickit_push_button 2
+pickit_busy 3
+pickit_error 4
+pickit_idle 5
+]
+"62 C:\Program Files (x86)\Microchip\xc8\v1.38\sources\common\float.c
+[v ___ftpack __ftpack `(f  1 e 3 0 ]
+"86 C:\Program Files (x86)\Microchip\xc8\v1.38\sources\common\ftadd.c
+[v ___ftadd __ftadd `(f  1 e 3 0 ]
+"62 C:\Program Files (x86)\Microchip\xc8\v1.38\sources\common\ftmul.c
+[v ___ftmul __ftmul `(f  1 e 3 0 ]
+"44 C:\Program Files (x86)\Microchip\xc8\v1.38\sources\common\fttol.c
+[v ___fttol __fttol `(l  1 e 4 0 ]
+"28 C:\Program Files (x86)\Microchip\xc8\v1.38\sources\common\lwtoft.c
+[v ___lwtoft __lwtoft `(f  1 e 3 0 ]
+"15 C:\Program Files (x86)\Microchip\xc8\v1.38\sources\common\Umul16.c
+[v ___wmul __wmul `(ui  1 e 2 0 ]
+"4 C:\Program Files (x86)\Microchip\xc8\v1.38\sources\common\Umul8.c
+[v ___bmul __bmul `(uc  1 e 1 0 ]
+"308 C:\Users\john\Dropbox\ET Systems\Multi_RX\Testjig\Multi_RX_testjig.X\Multi_RX_testjig_v1.c
+[v _isr isr `II(v  1 e 1 0 ]
+"455
+[v _main main `(v  1 e 1 0 ]
+"923
+[v _testjig_done testjig_done `(v  1 e 1 0 ]
+"964
+[v _buzz_one buzz_one `(v  1 e 1 0 ]
+"974
+[v _i2c_Start i2c_Start `(v  1 e 1 0 ]
+"983
+[v _i2c_Write i2c_Write `(v  1 e 1 0 ]
+"990
+[v _i2c_Stop i2c_Stop `(v  1 e 1 0 ]
+"997
+[v _i2c_Write_string i2c_Write_string `(v  1 e 1 0 ]
+"1011
+[v _i2c_write_char i2c_write_char `(v  1 e 1 0 ]
+"1021
+[v _init_i2c_lcd_5v init_i2c_lcd_5v `(v  1 e 1 0 ]
+"1065
+[v _clear_lcd clear_lcd `(v  1 e 1 0 ]
+"1075
+[v _i2c_first_line i2c_first_line `(v  1 e 1 0 ]
+"1085
+[v _i2c_second_line i2c_second_line `(v  1 e 1 0 ]
+"1095
+[v _lcd_set_cursor lcd_set_cursor `(v  1 e 1 0 ]
+"1350
+[v _ten_thou_conv ten_thou_conv `(v  1 e 1 0 ]
+"1437
+[v _print_error print_error `(v  1 e 1 0 ]
+"1460
+[v _print_screen print_screen `(v  1 e 1 0 ]
+"1600
+[v _lcd_createChar lcd_createChar `(v  1 e 1 0 ]
+"1670
+[v _lcd_print_int lcd_print_int `(v  1 e 1 0 ]
+"1741
+[v _send_uart2 send_uart2 `(v  1 e 1 0 ]
+"1747
+[v _uart_reset uart_reset `(v  1 e 1 0 ]
+"1757
+[v _uart_receive_four uart_receive_four `(uc  1 e 1 0 ]
+"1797
+[v _init_i2c init_i2c `(v  1 e 1 0 ]
+"1808
+[v _init_ADC init_ADC `(v  1 e 1 0 ]
+"1815
+[v _ADC_get_val ADC_get_val `(ui  1 e 2 0 ]
+"1826
+[v _init_current_sink init_current_sink `(v  1 e 1 0 ]
+"1839
+[v _power_supply_set power_supply_set `(v  1 e 1 0 ]
+"1866
+[v _get_30v_current get_30v_current `(ui  1 e 2 0 ]
+"1876
+[v _Vout_set Vout_set `(v  1 e 1 0 ]
+"1943
+[v _digitalpot digitalpot `(v  1 e 1 0 ]
+"1953
+[v _debug_fast_tx debug_fast_tx `(v  1 e 1 0 ]
+"1995
+[v _TX_one TX_one `(v  1 e 1 0 ]
+"2012
+[v _RX_one RX_one `(uc  1 e 1 0 ]
+[s S31 . 1 `uc 1 IOCIF 1 0 :1:0 
+`uc 1 INTF 1 0 :1:1 
+`uc 1 TMR0IF 1 0 :1:2 
+`uc 1 IOCIE 1 0 :1:3 
+`uc 1 INTE 1 0 :1:4 
+`uc 1 TMR0IE 1 0 :1:5 
+`uc 1 PEIE 1 0 :1:6 
+`uc 1 GIE 1 0 :1:7 
+]
+"360 C:\Program Files (x86)\Microchip\xc8\v1.38\include\pic16f1527.h
+[s S40 . 1 `uc 1 . 1 0 :2:0 
+`uc 1 T0IF 1 0 :1:2 
+`uc 1 . 1 0 :2:3 
+`uc 1 T0IE 1 0 :1:5 
+]
+[u S45 . 1 `S31 1 . 1 0 `S40 1 . 1 0 ]
+[v _INTCONbits INTCONbits `VES45  1 e 1 @11 ]
+"414
+[v _PORTA PORTA `VEuc  1 e 1 @12 ]
+"475
+[v _PORTB PORTB `VEuc  1 e 1 @13 ]
+"536
+[v _PORTC PORTC `VEuc  1 e 1 @14 ]
+"597
+[v _PORTD PORTD `VEuc  1 e 1 @15 ]
+"658
+[v _PORTE PORTE `VEuc  1 e 1 @16 ]
+[s S63 . 1 `uc 1 TMR1IF 1 0 :1:0 
+`uc 1 TMR2IF 1 0 :1:1 
+`uc 1 CCP1IF 1 0 :1:2 
+`uc 1 SSP1IF 1 0 :1:3 
+`uc 1 TX1IF 1 0 :1:4 
+`uc 1 RC1IF 1 0 :1:5 
+`uc 1 ADIF 1 0 :1:6 
+`uc 1 TMR1GIF 1 0 :1:7 
+]
+"742
+[s S72 . 1 `uc 1 . 1 0 :3:0 
+`uc 1 SSPIF 1 0 :1:3 
+`uc 1 TXIF 1 0 :1:4 
+`uc 1 RCIF 1 0 :1:5 
+]
+[u S77 . 1 `S63 1 . 1 0 `S72 1 . 1 0 ]
+[v _PIR1bits PIR1bits `VES77  1 e 1 @17 ]
+"988
+[v _TMR0 TMR0 `VEuc  1 e 1 @21 ]
+"1216
+[v _PR2 PR2 `VEuc  1 e 1 @27 ]
+"1235
+[v _T2CON T2CON `VEuc  1 e 1 @28 ]
+"1305
+[v _TRISA TRISA `VEuc  1 e 1 @140 ]
+"1366
+[v _TRISB TRISB `VEuc  1 e 1 @141 ]
+"1427
+[v _TRISC TRISC `VEuc  1 e 1 @142 ]
+"1488
+[v _TRISD TRISD `VEuc  1 e 1 @143 ]
+"1549
+[v _TRISE TRISE `VEuc  1 e 1 @144 ]
+[s S399 . 1 `uc 1 TMR1IE 1 0 :1:0 
+`uc 1 TMR2IE 1 0 :1:1 
+`uc 1 CCP1IE 1 0 :1:2 
+`uc 1 SSP1IE 1 0 :1:3 
+`uc 1 TX1IE 1 0 :1:4 
+`uc 1 RC1IE 1 0 :1:5 
+`uc 1 ADIE 1 0 :1:6 
+`uc 1 TMR1GIE 1 0 :1:7 
+]
+"1633
+[s S408 . 1 `uc 1 . 1 0 :3:0 
+`uc 1 SSPIE 1 0 :1:3 
+`uc 1 TXIE 1 0 :1:4 
+`uc 1 RCIE 1 0 :1:5 
+]
+[u S413 . 1 `S399 1 . 1 0 `S408 1 . 1 0 ]
+[v _PIE1bits PIE1bits `VES413  1 e 1 @145 ]
+"1879
+[v _OPTION_REG OPTION_REG `VEuc  1 e 1 @149 ]
+[s S173 . 1 `uc 1 nBOR 1 0 :1:0 
+`uc 1 nPOR 1 0 :1:1 
+`uc 1 nRI 1 0 :1:2 
+`uc 1 nRMCLR 1 0 :1:3 
+`uc 1 nRWDT 1 0 :1:4 
+`uc 1 . 1 0 :1:5 
+`uc 1 STKUNF 1 0 :1:6 
+`uc 1 STKOVF 1 0 :1:7 
+]
+"1978
+[u S182 . 1 `S173 1 . 1 0 ]
+[v _PCONbits PCONbits `VES182  1 e 1 @150 ]
+"2075
+[v _OSCCON OSCCON `VEuc  1 e 1 @153 ]
+"2200
+[v _ADRESL ADRESL `VEuc  1 e 1 @155 ]
+"2219
+[v _ADRESH ADRESH `VEuc  1 e 1 @156 ]
+"2238
+[v _ADCON0 ADCON0 `VEuc  1 e 1 @157 ]
+[s S360 . 1 `uc 1 ADON 1 0 :1:0 
+`uc 1 GO_nDONE 1 0 :1:1 
+`uc 1 CHS 1 0 :5:2 
+]
+"2263
+[s S364 . 1 `uc 1 . 1 0 :1:0 
+`uc 1 ADGO 1 0 :1:1 
+`uc 1 CHS0 1 0 :1:2 
+`uc 1 CHS1 1 0 :1:3 
+`uc 1 CHS2 1 0 :1:4 
+`uc 1 CHS3 1 0 :1:5 
+`uc 1 CHS4 1 0 :1:6 
+]
+[s S372 . 1 `uc 1 . 1 0 :1:0 
+`uc 1 GO 1 0 :1:1 
+]
+[u S375 . 1 `S360 1 . 1 0 `S364 1 . 1 0 `S372 1 . 1 0 ]
+[v _ADCON0bits ADCON0bits `VES375  1 e 1 @157 ]
+"2317
+[v _ADCON1 ADCON1 `VEuc  1 e 1 @158 ]
+"2727
+[v _FVRCON FVRCON `VEuc  1 e 1 @279 ]
+"2810
+[v _ANSELA ANSELA `VEuc  1 e 1 @396 ]
+"2862
+[v _ANSELB ANSELB `VEuc  1 e 1 @397 ]
+"2919
+[v _ANSELD ANSELD `VEuc  1 e 1 @399 ]
+"2964
+[v _ANSELE ANSELE `VEuc  1 e 1 @400 ]
+"3926
+[v _WPUB WPUB `VEuc  1 e 1 @525 ]
+"3995
+[v _WPUD WPUD `VEuc  1 e 1 @527 ]
+"4056
+[v _WPUE WPUE `VEuc  1 e 1 @528 ]
+"4117
+[v _SSP1BUF SSP1BUF `VEuc  1 e 1 @529 ]
+"4154
+[v _SSP1ADD SSP1ADD `VEuc  1 e 1 @530 ]
+"4228
+[v _SSP1STAT SSP1STAT `VEuc  1 e 1 @532 ]
+[s S275 . 1 `uc 1 BF 1 0 :1:0 
+`uc 1 UA 1 0 :1:1 
+`uc 1 R_nW 1 0 :1:2 
+`uc 1 S 1 0 :1:3 
+`uc 1 P 1 0 :1:4 
+`uc 1 D_nA 1 0 :1:5 
+`uc 1 CKE 1 0 :1:6 
+`uc 1 SMP 1 0 :1:7 
+]
+"4250
+[u S284 . 1 `S275 1 . 1 0 ]
+[v _SSP1STATbits SSP1STATbits `VES284  1 e 1 @532 ]
+"4349
+[v _SSP1CON1 SSP1CON1 `VEuc  1 e 1 @533 ]
+"4552
+[v _SSP1CON2 SSP1CON2 `VEuc  1 e 1 @534 ]
+[s S253 . 1 `uc 1 SEN 1 0 :1:0 
+`uc 1 RSEN 1 0 :1:1 
+`uc 1 PEN 1 0 :1:2 
+`uc 1 RCEN 1 0 :1:3 
+`uc 1 ACKEN 1 0 :1:4 
+`uc 1 ACKDT 1 0 :1:5 
+`uc 1 ACKSTAT 1 0 :1:6 
+`uc 1 GCEN 1 0 :1:7 
+]
+"4574
+[u S262 . 1 `S253 1 . 1 0 ]
+[v _SSP1CON2bits SSP1CON2bits `VES262  1 e 1 @534 ]
+"5103
+[v _PORTF PORTF `VEuc  1 e 1 @652 ]
+"5164
+[v _PORTG PORTG `VEuc  1 e 1 @653 ]
+"5601
+[v _CCPTMRS2 CCPTMRS2 `VEuc  1 e 1 @671 ]
+"5652
+[v _TRISF TRISF `VEuc  1 e 1 @780 ]
+"5713
+[v _TRISG TRISG `VEuc  1 e 1 @781 ]
+"6388
+[v _ANSELF ANSELF `VEuc  1 e 1 @1036 ]
+"6449
+[v _ANSELG ANSELG `VEuc  1 e 1 @1037 ]
+"7619
+[v _PR8 PR8 `VEuc  1 e 1 @1430 ]
+"7638
+[v _T8CON T8CON `VEuc  1 e 1 @1431 ]
+"8143
+[v _CCPR9L CCPR9L `VEuc  1 e 1 @1562 ]
+"8181
+[v _CCP9CON CCP9CON `VEuc  1 e 1 @1564 ]
+"8916
+[v _GIE GIE `VEb  1 e 0 @95 ]
+"9004
+[v _LATA6 LATA6 `VEb  1 e 0 @2150 ]
+"9006
+[v _LATA7 LATA7 `VEb  1 e 0 @2151 ]
+"9018
+[v _LATB5 LATB5 `VEb  1 e 0 @2157 ]
+"9028
+[v _LATC2 LATC2 `VEb  1 e 0 @2162 ]
+"9034
+[v _LATC5 LATC5 `VEb  1 e 0 @2165 ]
+"9036
+[v _LATC6 LATC6 `VEb  1 e 0 @2166 ]
+"9038
+[v _LATC7 LATC7 `VEb  1 e 0 @2167 ]
+"9044
+[v _LATD2 LATD2 `VEb  1 e 0 @2170 ]
+"9048
+[v _LATD4 LATD4 `VEb  1 e 0 @2172 ]
+"9050
+[v _LATD5 LATD5 `VEb  1 e 0 @2173 ]
+"9052
+[v _LATD6 LATD6 `VEb  1 e 0 @2174 ]
+"9088
+[v _LATG0 LATG0 `VEb  1 e 0 @7272 ]
+"9122
+[v _RA2 RA2 `VEb  1 e 0 @98 ]
+"9126
+[v _RA4 RA4 `VEb  1 e 0 @100 ]
+"9128
+[v _RA5 RA5 `VEb  1 e 0 @101 ]
+"9196
+[v _RE0 RE0 `VEb  1 e 0 @128 ]
+"9204
+[v _RE4 RE4 `VEb  1 e 0 @132 ]
+"9206
+[v _RE5 RE5 `VEb  1 e 0 @133 ]
+"9208
+[v _RE6 RE6 `VEb  1 e 0 @134 ]
+"9212
+[v _RF0 RF0 `VEb  1 e 0 @5216 ]
+"9214
+[v _RF1 RF1 `VEb  1 e 0 @5217 ]
+"9216
+[v _RF2 RF2 `VEb  1 e 0 @5218 ]
+"9218
+[v _RF3 RF3 `VEb  1 e 0 @5219 ]
+"9222
+[v _RF5 RF5 `VEb  1 e 0 @5221 ]
+"9230
+[v _RG1 RG1 `VEb  1 e 0 @5225 ]
+"9234
+[v _RG3 RG3 `VEb  1 e 0 @5227 ]
+"9400
+[v _TMR0IE TMR0IE `VEb  1 e 0 @93 ]
+"9402
+[v _TMR0IF TMR0IF `VEb  1 e 0 @90 ]
+"9522
+[v _TRISC3 TRISC3 `VEb  1 e 0 @1139 ]
+"9524
+[v _TRISC4 TRISC4 `VEb  1 e 0 @1140 ]
+"9580
+[v _TRISG0 TRISG0 `VEb  1 e 0 @6248 ]
+"216 C:\Users\john\Dropbox\ET Systems\Multi_RX\Testjig\Multi_RX_testjig.X\Multi_RX_testjig_v1.c
+[v _pickit_state pickit_state `E3679  1 e 1 0 ]
+"286
+[v _ten_thou ten_thou `uc  1 e 1 0 ]
+[v _thou thou `uc  1 e 1 0 ]
+[v _hund hund `uc  1 e 1 0 ]
+[v _ten ten `uc  1 e 1 0 ]
+[v _unit unit `uc  1 e 1 0 ]
+"288
+[v _uart_receive_timer uart_receive_timer `VEi  1 e 2 0 ]
+[v _motor_direction_timer motor_direction_timer `VEi  1 e 2 0 ]
+"289
+[v _pickit_timer pickit_timer `VEui  1 e 2 0 ]
+"290
+[v _current_sink_timer current_sink_timer `VEui  1 e 2 0 ]
+[v _testjig_timer testjig_timer `VEui  1 e 2 0 ]
+"292
+[v _one_second_timer one_second_timer `VEui  1 e 2 0 ]
+"293
+[v _buzz_timer buzz_timer `VEui  1 e 2 0 ]
+"294
+[v _ADC_cur_sink_val ADC_cur_sink_val `VEui  1 e 2 0 ]
+"295
+[v _curent_sink_val curent_sink_val `VEui  1 e 2 0 ]
+[v _current_sink_stable current_sink_stable `VEui  1 e 2 0 ]
+"298
+[v _pickit_red_counter pickit_red_counter `uc  1 e 1 0 ]
+"300
+[v _tj_timer tj_timer `ui  1 e 2 0 ]
+"455
+[v _main main `(v  1 e 1 0 ]
+{
+"605
+[v main@i i `ui  1 a 2 44 ]
+"618
+[v main@RX_data RX_data `uc  1 a 1 46 ]
+"921
+} 0
+"923
+[v _testjig_done testjig_done `(v  1 e 1 0 ]
+{
+[v testjig_done@state state `uc  1 a 1 wreg ]
+[v testjig_done@state state `uc  1 a 1 wreg ]
+[v testjig_done@state state `uc  1 a 1 11 ]
+"962
+} 0
+"1437
+[v _print_error print_error `(v  1 e 1 0 ]
+{
+[v print_error@top top `*.25DCCuc  1 p 2 8 ]
+[v print_error@bottom bottom `*.25DCCuc  1 p 2 10 ]
+"1458
+} 0
+"1460
+[v _print_screen print_screen `(v  1 e 1 0 ]
+{
+[v print_screen@top top `*.25DCCuc  1 p 2 4 ]
+[v print_screen@bottom bottom `*.25DCCuc  1 p 2 6 ]
+"1467
+} 0
+"1085
+[v _i2c_second_line i2c_second_line `(v  1 e 1 0 ]
+{
+"1093
+} 0
+"1075
+[v _i2c_first_line i2c_first_line `(v  1 e 1 0 ]
+{
+"1083
+} 0
+"997
+[v _i2c_Write_string i2c_Write_string `(v  1 e 1 0 ]
+{
+[v i2c_Write_string@data data `*.25DCCuc  1 p 2 1 ]
+"1009
+} 0
+"1065
+[v _clear_lcd clear_lcd `(v  1 e 1 0 ]
+{
+"1073
+} 0
+"1839
+[v _power_supply_set power_supply_set `(v  1 e 1 0 ]
+{
+[v power_supply_set@supply supply `uc  1 a 1 wreg ]
+[v power_supply_set@supply supply `uc  1 a 1 wreg ]
+[v power_supply_set@supply supply `uc  1 a 1 0 ]
+"1864
+} 0
+"1953
+[v _debug_fast_tx debug_fast_tx `(v  1 e 1 0 ]
+{
+"1971
+[v debug_fast_tx@i i `uc  1 a 1 2 ]
+"1953
+[v debug_fast_tx@data data `ui  1 p 2 0 ]
+"1993
+} 0
+"964
+[v _buzz_one buzz_one `(v  1 e 1 0 ]
+{
+[v buzz_one@time time `ui  1 p 2 0 ]
+"968
+} 0
+"1670
+[v _lcd_print_int lcd_print_int `(v  1 e 1 0 ]
+{
+[v lcd_print_int@number number `ui  1 p 2 0 ]
+[v lcd_print_int@pos pos `ui  1 p 2 2 ]
+[v lcd_print_int@decimal decimal `uc  1 p 1 4 ]
+[v lcd_print_int@ten_thou_digit ten_thou_digit `uc  1 p 1 5 ]
+"1694
+} 0
+"1350
+[v _ten_thou_conv ten_thou_conv `(v  1 e 1 0 ]
+{
+[v ten_thou_conv@n n `i  1 p 2 6 ]
+"1372
+} 0
+"15 C:\Program Files (x86)\Microchip\xc8\v1.38\sources\common\Umul16.c
+[v ___wmul __wmul `(ui  1 e 2 0 ]
+{
+"17
+[v ___wmul@product product `ui  1 a 2 4 ]
+"15
+[v ___wmul@multiplier multiplier `ui  1 p 2 0 ]
+[v ___wmul@multiplicand multiplicand `ui  1 p 2 2 ]
+"53
+} 0
+"4 C:\Program Files (x86)\Microchip\xc8\v1.38\sources\common\Umul8.c
+[v ___bmul __bmul `(uc  1 e 1 0 ]
+{
+[v ___bmul@multiplier multiplier `uc  1 a 1 wreg ]
+"6
+[v ___bmul@product product `uc  1 a 1 1 ]
+"4
+[v ___bmul@multiplier multiplier `uc  1 a 1 wreg ]
+[v ___bmul@multiplicand multiplicand `uc  1 p 1 0 ]
+"6
+[v ___bmul@multiplier multiplier `uc  1 a 1 2 ]
+"51
+} 0
+"1095 C:\Users\john\Dropbox\ET Systems\Multi_RX\Testjig\Multi_RX_testjig.X\Multi_RX_testjig_v1.c
+[v _lcd_set_cursor lcd_set_cursor `(v  1 e 1 0 ]
+{
+[v lcd_set_cursor@row row `uc  1 a 1 wreg ]
+"1097
+[v lcd_set_cursor@LCD_position LCD_position `uc  1 a 1 3 ]
+"1095
+[v lcd_set_cursor@row row `uc  1 a 1 wreg ]
+[v lcd_set_cursor@col col `uc  1 p 1 1 ]
+[v lcd_set_cursor@row row `uc  1 a 1 2 ]
+"1109
+} 0
+"1011
+[v _i2c_write_char i2c_write_char `(v  1 e 1 0 ]
+{
+[v i2c_write_char@char_data char_data `uc  1 a 1 wreg ]
+[v i2c_write_char@char_data char_data `uc  1 a 1 wreg ]
+"1013
+[v i2c_write_char@char_data char_data `uc  1 a 1 1 ]
+"1019
+} 0
+"1021
+[v _init_i2c_lcd_5v init_i2c_lcd_5v `(v  1 e 1 0 ]
+{
+[v init_i2c_lcd_5v@contrast contrast `uc  1 a 1 wreg ]
+[v init_i2c_lcd_5v@contrast contrast `uc  1 a 1 wreg ]
+[v init_i2c_lcd_5v@single1_double2 single1_double2 `uc  1 p 1 1 ]
+"1023
+[v init_i2c_lcd_5v@contrast contrast `uc  1 a 1 4 ]
+"1040
+} 0
+"1797
+[v _init_i2c init_i2c `(v  1 e 1 0 ]
+{
+"1806
+} 0
+"1826
+[v _init_current_sink init_current_sink `(v  1 e 1 0 ]
+{
+"1837
+} 0
+"1808
+[v _init_ADC init_ADC `(v  1 e 1 0 ]
+{
+"1813
+} 0
+"1866
+[v _get_30v_current get_30v_current `(ui  1 e 2 0 ]
+{
+"1868
+[v get_30v_current@temp temp `ui  1 a 2 39 ]
+"1874
+} 0
+"28 C:\Program Files (x86)\Microchip\xc8\v1.38\sources\common\lwtoft.c
+[v ___lwtoft __lwtoft `(f  1 e 3 0 ]
+{
+[v ___lwtoft@c c `ui  1 p 2 8 ]
+"31
+} 0
+"44 C:\Program Files (x86)\Microchip\xc8\v1.38\sources\common\fttol.c
+[v ___fttol __fttol `(l  1 e 4 0 ]
+{
+"47
+[v ___fttol@lval lval `ul  1 a 4 32 ]
+"46
+[v ___fttol@exp1 exp1 `uc  1 a 1 36 ]
+[v ___fttol@sign1 sign1 `uc  1 a 1 31 ]
+"44
+[v ___fttol@f1 f1 `f  1 p 3 24 ]
+"73
+} 0
+"62 C:\Program Files (x86)\Microchip\xc8\v1.38\sources\common\ftmul.c
+[v ___ftmul __ftmul `(f  1 e 3 0 ]
+{
+"65
+[v ___ftmul@f3_as_product f3_as_product `um  1 a 3 7 ]
+"64
+[v ___ftmul@sign sign `uc  1 a 1 11 ]
+[v ___ftmul@cntr cntr `uc  1 a 1 10 ]
+[v ___ftmul@exp exp `uc  1 a 1 6 ]
+"62
+[v ___ftmul@f1 f1 `f  1 p 3 0 ]
+[v ___ftmul@f2 f2 `f  1 p 3 3 ]
+"157
+} 0
+"86 C:\Program Files (x86)\Microchip\xc8\v1.38\sources\common\ftadd.c
+[v ___ftadd __ftadd `(f  1 e 3 0 ]
+{
+"88
+[v ___ftadd@exp1 exp1 `uc  1 a 1 23 ]
+[v ___ftadd@exp2 exp2 `uc  1 a 1 22 ]
+[v ___ftadd@sign sign `uc  1 a 1 21 ]
+"86
+[v ___ftadd@f1 f1 `f  1 p 3 12 ]
+[v ___ftadd@f2 f2 `f  1 p 3 15 ]
+"148
+} 0
+"62 C:\Program Files (x86)\Microchip\xc8\v1.38\sources\common\float.c
+[v ___ftpack __ftpack `(f  1 e 3 0 ]
+{
+[v ___ftpack@arg arg `um  1 p 3 0 ]
+[v ___ftpack@exp exp `uc  1 p 1 3 ]
+[v ___ftpack@sign sign `uc  1 p 1 4 ]
+"86
+} 0
+"1815 C:\Users\john\Dropbox\ET Systems\Multi_RX\Testjig\Multi_RX_testjig.X\Multi_RX_testjig_v1.c
+[v _ADC_get_val ADC_get_val `(ui  1 e 2 0 ]
+{
+[v ADC_get_val@channel channel `uc  1 a 1 wreg ]
+"1817
+[v ADC_get_val@return_val return_val `ui  1 a 2 4 ]
+"1815
+[v ADC_get_val@channel channel `uc  1 a 1 wreg ]
+"1818
+[v ADC_get_val@channel channel `uc  1 a 1 3 ]
+"1824
+} 0
+"1876
+[v _Vout_set Vout_set `(v  1 e 1 0 ]
+{
+"1878
+[v Vout_set@digi_step digi_step `ul  1 a 4 6 ]
+"1876
+[v Vout_set@Volts Volts `i  1 p 2 4 ]
+"1941
+} 0
+"1943
+[v _digitalpot digitalpot `(v  1 e 1 0 ]
+{
+[v digitalpot@value value `uc  1 a 1 wreg ]
+[v digitalpot@value value `uc  1 a 1 wreg ]
+"1945
+[v digitalpot@value value `uc  1 a 1 3 ]
+"1951
+} 0
+"983
+[v _i2c_Write i2c_Write `(v  1 e 1 0 ]
+{
+[v i2c_Write@data data `uc  1 a 1 wreg ]
+[v i2c_Write@data data `uc  1 a 1 wreg ]
+"985
+[v i2c_Write@data data `uc  1 a 1 0 ]
+"988
+} 0
+"990
+[v _i2c_Stop i2c_Stop `(v  1 e 1 0 ]
+{
+"995
+} 0
+"974
+[v _i2c_Start i2c_Start `(v  1 e 1 0 ]
+{
+"981
+} 0
+"1995
+[v _TX_one TX_one `(v  1 e 1 0 ]
+{
+[v TX_one@data data `uc  1 a 1 wreg ]
+"2001
+[v TX_one@i i `uc  1 a 1 2 ]
+"1995
+[v TX_one@data data `uc  1 a 1 wreg ]
+"1997
+[v TX_one@data data `uc  1 a 1 1 ]
+"2010
+} 0
+"2012
+[v _RX_one RX_one `(uc  1 e 1 0 ]
+{
+"2018
+[v RX_one@data data `uc  1 a 1 2 ]
+"2017
+[v RX_one@i i `uc  1 a 1 1 ]
+"2030
+} 0
+"308
+[v _isr isr `II(v  1 e 1 0 ]
+{
+"452
+} 0
