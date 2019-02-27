@@ -4951,7 +4951,7 @@ enum
 pickit_finish, pickit_start, pickit_push_button, pickit_busy, pickit_error, pickit_idle
 } pickit_state;
 
-# 300
+# 301
 const unsigned int popup_delay = 15;
 unsigned char button_beep_delay = 2;
 unsigned char ten_thou, thou, hund, ten, unit;
@@ -4970,7 +4970,7 @@ unsigned char pickit_red_counter = 0;
 unsigned int trip_current;
 unsigned int tj_timer = 0;
 
-# 323
+# 324
 void interrupt isr(void)
 {
 if(INTCONbits.TMR0IF == 1)
@@ -5043,7 +5043,7 @@ break;
 }
 }
 
-# 455
+# 456
 if(buzz_timer)
 buzz_timer--;
 else
@@ -5098,20 +5098,23 @@ ANSELD = 0b00001111;
 ANSELE = 0b00000100;
 ANSELF = 0b00000000;
 ANSELG = 0b00000000;
-LATC5 = 1;
 
-
+# 516
 init_ADC();
 init_current_sink();
 pickit_state = pickit_idle;
 
 RA5 = 0;
-buzz_one(200);
+
 RA5 = 1;
+
+
+
 init_i2c();
 
-# 526
-init_i2c_lcd_5v(8, 0x38);
+# 536
+init_i2c_lcd_5v(8, 1);
+
 print_screen("Multi_RX", "Test-Jig|Startup");
 RA4 = 1;
 GIE = 1;
@@ -5132,33 +5135,66 @@ if(RF3 == 1)
 print_error("Multi_RX", "-> Insert PCB");
 
 
+
+
 print_screen("Powering board", "");
+
 
 
 Vout_set(12);
 power_supply_set(0);
-_delay((unsigned long)((50)*(16000000/4000.0)));
+_delay((unsigned long)((150)*(16000000/4000.0)));
 ADC_val = ADC_get_val(0b01011111);
 testjig_timer = (unsigned int)(7518.8/2);
 while((ADC_get_val(0b01011111) < (unsigned int)((((5/11.0)*1024)/4.096)*0.92)) && (ADC_get_val(0b01011111) > (unsigned int)((((5/11.0)*1024)/4.096)*1.08)) && (get_30v_current() < 30) && testjig_timer);
+if((ADC_get_val(0b01011111) < (unsigned int)((((5/11.0)*1024)/4.096)*0.92)))
+print_error("12v-5v supply", "Volt Error L");
+else if((ADC_get_val(0b01011111) > (unsigned int)((((5/11.0)*1024)/4.096)*1.08)))
+print_error("12v-5v supply", "Volt Error H");
+else if((get_30v_current() >= 60))
+{
+lcd_print_int(get_30v_current(), 5, 0, 1);
+_delay((unsigned long)((1000)*(16000000/4000.0)));
+print_error("12v supply", "Curr Error");
+}
+else if(testjig_timer == 0)
+print_error("12v-5v supply", "T-out Error");
 
-# 569
-power_supply_set(1);
-Vout_set(16);
-_delay((unsigned long)((150)*(16000000/4000.0)));
+# 587
+Vout_set(27);
+power_supply_set(0);
+_delay((unsigned long)((2000)*(16000000/4000.0)));
 testjig_timer = (unsigned int)(7518.8/2);
-while((ADC_get_val(0b01011111) < (unsigned int)((((5/11.0)*1024)/4.096)*0.92)) && (ADC_get_val(0b01011111) > (unsigned int)((((5/11.0)*1024)/4.096)*1.08))&&(ADC_get_val(0b01100011) < (unsigned int)((((12/11.0)*1024)/4.096)*0.9)) && (ADC_get_val(0b01100011) > (unsigned int)((((12/11.0)*1024)/4.096)*1.2)) && (get_30v_current() < 60) && testjig_timer);
+while((ADC_get_val(0b01011111) < (unsigned int)((((5/11.0)*1024)/4.096)*0.92)) &&
+(ADC_get_val(0b01011111) > (unsigned int)((((5/11.0)*1024)/4.096)*1.08))&&
+(ADC_get_val(0b01100011) < (unsigned int)((((26/11.0)*1024)/4.096)*0.9)) &&
+(ADC_get_val(0b01100011) > (unsigned int)((((26/11.0)*1024)/4.096)*1.2)) &&
+(get_30v_current() < 60) && testjig_timer);
 unsigned int temp;
 temp = get_30v_current();
 
-lcd_print_int(ADC_get_val(0b01011111), 5, 0, 1);
-_delay((unsigned long)((1000)*(16000000/4000.0)));
 
-# 584
-if((ADC_get_val(0b01100011) < (unsigned int)((((12/11.0)*1024)/4.096)*0.9)))
+
+
+if((ADC_get_val(0b01011111) < (unsigned int)((((5/11.0)*1024)/4.096)*0.92)))
+{
+lcd_print_int(ADC_get_val(0b01011111), 11, 0, 0);
+_delay((unsigned long)((2000)*(16000000/4000.0)));
+print_error("16v-5v supply", "Volt Error L");
+}
+else if((ADC_get_val(0b01011111) > (unsigned int)((((5/11.0)*1024)/4.096)*1.08)))
+{
+
+print_error("16v-5v supply", "Volt Error H");
+}
+else if((ADC_get_val(0b01100011) < (unsigned int)((((26/11.0)*1024)/4.096)*0.9)))
 print_error("16v-12v supply", "Volt Error L");
-else if((ADC_get_val(0b01100011) > (unsigned int)((((12/11.0)*1024)/4.096)*1.2)))
+else if((ADC_get_val(0b01100011) > (unsigned int)((((26/11.0)*1024)/4.096)*1.2)))
+{
+lcd_print_int(ADC_get_val(0b01100011), 5, 0, 1);
+_delay((unsigned long)((1000)*(16000000/4000.0)));
 print_error("16v-12v supply", "Volt Error H");
+}
 else if((temp >= 60))
 {
 lcd_print_int(temp, 5, 0, 1);
@@ -5168,7 +5204,7 @@ print_error("16v supply", "Curr Error");
 else if(testjig_timer == 0)
 print_error("16v-5v supply", "T-out Error");
 
-# 601
+# 634
 if(RA2 == 1)
 {
 power_supply_set(0);
@@ -5190,7 +5226,7 @@ LATC2 = 0;
 LATC7 = 0;
 _delay((unsigned long)((100)*(16000000/4000.0)));
 
-# 627
+# 660
 }
 else
 {
@@ -5198,7 +5234,7 @@ print_screen("Pickit Programming", " skipped");
 _delay((unsigned long)((300)*(16000000/4000.0)));
 }
 
-# 647
+# 680
 LATF4 = 0;
 _delay((unsigned long)((100)*(16000000/4000.0)));
 LATF4 = 1;
@@ -5268,9 +5304,21 @@ if((device_type == 0xAA)|| (device_type == 0xA1))
 
 Vout_set(12);
 print_screen("Test Relay", "");
-if(RF5 == 0 && RF2 == 1)
+
+while(1)
 {
 TX_one(0x30);
+
+_delay((unsigned long)((1000)*(16000000/4000.0)));
+
+TX_one(0x31);
+
+_delay((unsigned long)((2000)*(16000000/4000.0)));
+}
+
+if(RF5 == 0 && RF2 == 1)
+{
+TX_one(0x31);
 if(RX_one() == 0x3A)
 {
 _delay((unsigned long)((50)*(16000000/4000.0)));
@@ -5487,7 +5535,7 @@ RX_data = RX_one();
 TX_one(0x60);
 RX_data = RX_one();
 
-# 945
+# 990
 RE0 = 0;
 if(RX_data == 0)
 print_error("Comms Error", " 13");
@@ -5614,7 +5662,7 @@ print_screen("waiting  ", " for comms");
 
 testjig_done(1, device_type);
 
-# 1079
+# 1124
 testjig_done(1, device_type);
 }
 
@@ -5696,7 +5744,7 @@ buzz_timer = time;
 LATC5 = 1;
 }
 
-# 1164
+# 1209
 void i2c_Start(void)
 {
 
@@ -5765,7 +5813,7 @@ _delay((unsigned long)((2)*(16000000/4000.0)));
 i2c_Stop();
 }
 
-# 1255
+# 1300
 void clear_lcd(void)
 {
 i2c_Start();
@@ -5824,7 +5872,7 @@ i2c_Write(0x0F);
 i2c_Stop();
 }
 
-# 1524
+# 1569
 void contrast_set(unsigned char contrast)
 {
 char cont_low = 0x70;
@@ -5885,7 +5933,7 @@ ten_thou = (hund * 0x67) >> 10;
 hund = hund - 10 * ten_thou;
 }
 
-# 1627
+# 1672
 void print_error(const unsigned char *top, const unsigned char *bottom)
 {
 power_supply_set(3);
@@ -6066,7 +6114,7 @@ i2c_write_char(charmap[i]);
 clear_lcd();
 }
 
-# 1861
+# 1906
 void lcd_print_int(unsigned int number, unsigned int pos, unsigned char decimal, unsigned char ten_thou_digit)
 {
 lcd_set_cursor(2, pos + 1 - ten_thou_digit);
@@ -6093,7 +6141,7 @@ if(decimal & 0x02)i2c_write_char('.');
 i2c_write_char(unit + 48);
 }
 
-# 1932
+# 1977
 void send_uart2(unsigned char uart2_data)
 {
 while(TX2STAbits.TRMT == 0);
@@ -6158,7 +6206,7 @@ TRISC3 = 1;
 TRISC4 = 1;
 SSP1STAT |= 0x80;
 SSP1CON1 = 0x28;
-SSP1ADD = 0x14;
+SSP1ADD = 0x22;
 }
 
 void init_ADC(void)
@@ -6198,8 +6246,11 @@ switch(supply)
 {
 case 0:
 LATD4 = 1;
+
 LATD5 = 1;
-LATD6 = 1;
+
+
+
 break;
 case 1:
 LATD4 = 1;
@@ -6233,61 +6284,30 @@ void Vout_set(int Volts)
 {
 unsigned long digi_step = 0;
 
-# 2075
+# 2125
 switch(Volts)
 {
-case 6:
-digi_step = 20;
-break;
-case 7:
-digi_step = 39;
-break;
-case 8:
+
+
+case 12:
 digi_step = 52;
 break;
-case 9:
-digi_step = 62;
-break;
-case 10:
-digi_step = 70;
-break;
-case 11:
-digi_step = 76;
-break;
-case 12:
-digi_step = 81;
-break;
-case 13:
-digi_step = 85;
-break;
-case 14:
-digi_step = 88;
-break;
-case 15:
-digi_step = 91;
-break;
 case 16:
-digi_step = 94;
+digi_step = 75;
 break;
-case 17:
-digi_step = 96;
-break;
-case 18:
-digi_step = 98;
-break;
-case 20:
-digi_step = 102;
-break;
-case 25:
-digi_step = 112;
+case 27:
+digi_step = 126;
 break;
 default:
 digi_step = 0;
 break;
 }
 
-# 2131
+# 2147
 digitalpot((unsigned char) digi_step);
+
+
+
 }
 
 void digitalpot(unsigned char value)
@@ -6298,6 +6318,8 @@ i2c_Write(0b00000000);
 i2c_Write(value);
 i2c_Stop();
 _delay((unsigned long)((20)*(16000000/4000.0)));
+
+
 }
 
 void debug_fast_tx(unsigned int data)
@@ -6305,7 +6327,7 @@ void debug_fast_tx(unsigned int data)
 GIE = 0;
 LATD2 = 0;
 
-# 2153
+# 2174
 __nop();
 __nop();
 __nop();

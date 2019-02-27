@@ -55,8 +55,8 @@
 // <editor-fold defaultstate="collapsed" desc="Hardware definitions">
 #define lcd_reset       RA5
 #define lcd_backlight   RA4
-#define i2c_lcd_address      0x7C
-#define i2c_pot_address         0x5C //[tpl0401a]
+#define i2c_lcd_address      0x7C //0x7c
+#define i2c_pot_address      0x5C // // 0x5C //[tpl0401A] Don't use TPL10401B, it has the same address as LCD(0x7C))
 #define trigger         LATD2
 #define buzzer          LATC5
 #define button          RE1
@@ -267,10 +267,11 @@ enum
 #define P5_5v_test_max (unsigned int)(Vtest_P5_CH23_5v*1.08)
 #define P5_5v_test_1v (unsigned int)(Vtest_P5_CH23_5v*0.2)
 
+
 #define Vtest_P2_CH24_div_ratio 11.0
-#define Vtest_P2_CH24_12v (((12/Vtest_P2_CH24_div_ratio)*ADC_resolution)/ADC_reference_voltage)
-#define P2_12v_test_min (unsigned int)(Vtest_P2_CH24_12v*0.9)
-#define P2_12v_test_max (unsigned int)(Vtest_P2_CH24_12v*1.2)
+#define Vtest_P2_CH24_27v (((26/Vtest_P2_CH24_div_ratio)*ADC_resolution)/ADC_reference_voltage)
+#define P2_27v_test_min (unsigned int)(Vtest_P2_CH24_27v*0.9)
+#define P2_27v_test_max (unsigned int)(Vtest_P2_CH24_27v*1.2)
 
 
 
@@ -506,24 +507,34 @@ void main(void)
     ANSELE = 0b00000100; //
     ANSELF = 0b00000000; //
     ANSELG = 0b00000000; //
-    buzzer = 1;
+   // buzzer = 1;
     // </editor-fold>
-
+    
+    
+    
+    
     init_ADC();
     init_current_sink();
     pickit_state = pickit_idle;
     //    current_sink_state = current_sink_off;
     lcd_reset = 0;
-    buzz_one(200);
+    //buzz_one(200);
     lcd_reset = 1; // disable reset on LCD
+    
+ 
+    
     init_i2c(); //init I2C module on MCU
+    
     //    init_uart2();
     //    disable_uart();
     //    uart_reset();
     //    enable_uart();
     //    uart_reset();
     //        init_i2c_lcd(60, 1);
-    init_i2c_lcd_5v(8, 0x38);
+    
+
+    init_i2c_lcd_5v(8, 1); // 8, 0x38
+   
     print_screen("Multi_RX", "Test-Jig|Startup");
     lcd_backlight = 1;
     GIE = 1;
@@ -542,49 +553,71 @@ void main(void)
 
     if(board_detect == 1)//check that a board is inserted
         print_error("Multi_RX", "-> Insert PCB");
+    
+    ///////////////////////////////////////////////////////////////////////////
 
     // <editor-fold defaultstate="collapsed" desc="Power up">
     print_screen("Powering board", "");
 
     //power 12v (P2), measure 5v, current
+    
     Vout_set(12);
     power_supply_set(AC1);
-    __delay_ms(50);
+    __delay_ms(150);
     ADC_val = ADC_get_val(ADC_5v_test); //dummy read required
     testjig_timer = T0_500ms;
     while((ADC_get_val(ADC_5v_test) < P5_5v_test_min) && (ADC_get_val(ADC_5v_test) > P5_5v_test_max) && (get_30v_current() < 30) && testjig_timer);
-   /* if((ADC_get_val(ADC_5v_test) < P5_5v_test_min))
+    if((ADC_get_val(ADC_5v_test) < P5_5v_test_min))
         print_error("12v-5v supply", "Volt Error L");
     else if((ADC_get_val(ADC_5v_test) > P5_5v_test_max))
         print_error("12v-5v supply", "Volt Error H");
     else if((get_30v_current() >= 60))
+    {
+        lcd_print_int(get_30v_current(), 5, 0, 1);
+        __delay_ms(1000);
         print_error("12v supply", "Curr Error");
+    }
     else if(testjig_timer == 0)
         print_error("12v-5v supply", "T-out Error");
-    */
+    
 
 
 
-    //power 16v, measure 12v, 5v, current
-    power_supply_set(AC2);
-    Vout_set(16);
-    __delay_ms(150); //tested, works down to 75ms
+    //power 27v, measure 12v, 5v, current
+    Vout_set(27);
+    power_supply_set(AC1);
+    __delay_ms(2000); //tested, works down to 75ms
     testjig_timer = T0_500ms;
-    while((ADC_get_val(ADC_5v_test) < P5_5v_test_min) && (ADC_get_val(ADC_5v_test) > P5_5v_test_max)&&(ADC_get_val(ADC_12v_test) < P2_12v_test_min) && (ADC_get_val(ADC_12v_test) > P2_12v_test_max) && (get_30v_current() < 60) && testjig_timer);
+    while((ADC_get_val(ADC_5v_test) < P5_5v_test_min) && 
+            (ADC_get_val(ADC_5v_test) > P5_5v_test_max)&&
+            (ADC_get_val(ADC_12v_test) < P2_27v_test_min) && 
+            (ADC_get_val(ADC_12v_test) > P2_27v_test_max) &&
+            (get_30v_current() < 60) && testjig_timer);
     unsigned int temp;
     temp = get_30v_current();
    
-    lcd_print_int(ADC_get_val(ADC_5v_test), 5, 0, 1);
-    __delay_ms(1000);
+   // lcd_print_int(ADC_get_val(ADC_5v_test), 5, 0, 1);
+   // __delay_ms(1000);
     
-    /*if((ADC_get_val(ADC_5v_test) < P5_5v_test_min))
+    if((ADC_get_val(ADC_5v_test) < P5_5v_test_min))
+    {
+        lcd_print_int(ADC_get_val(ADC_5v_test), 11, 0, 0);
+         __delay_ms(2000);
         print_error("16v-5v supply", "Volt Error L");
+    }
     else if((ADC_get_val(ADC_5v_test) > P5_5v_test_max))
+    {
+         
         print_error("16v-5v supply", "Volt Error H");
-    else*/ if((ADC_get_val(ADC_12v_test) < P2_12v_test_min))
+    }
+    else if((ADC_get_val(ADC_12v_test) < P2_27v_test_min))
         print_error("16v-12v supply", "Volt Error L");
-    else if((ADC_get_val(ADC_12v_test) > P2_12v_test_max))
+    else if((ADC_get_val(ADC_12v_test) > P2_27v_test_max))
+    {
+        lcd_print_int(ADC_get_val(ADC_12v_test), 5, 0, 1);
+        __delay_ms(1000);
         print_error("16v-12v supply", "Volt Error H");
+    }
     else if((temp >= 60))
     {
         lcd_print_int(temp, 5, 0, 1);
@@ -593,7 +626,7 @@ void main(void)
     }
     else if(testjig_timer == 0)
         print_error("16v-5v supply", "T-out Error");
-
+//////////////////////////////////////////////////////////////////////////
 
     // </editor-fold>
 
@@ -713,10 +746,22 @@ void main(void)
         //Test Relay
         Vout_set(12);
         print_screen("Test Relay", "");
+        
+        while(1)
+        {
+            TX_one(0x30);// relay de energised I think
+
+            __delay_ms(1000);
+
+            TX_one(0x31); // relay energised I think
+
+            __delay_ms(2000);
+        }
+        
         if(relay_NC_P4 == 0 && relay_NO_P8 == 1)//relay de-energized
         {
-            TX_one(0x30);
-            if(RX_one() == 0x3A)
+            TX_one(0x31);
+            if(RX_one() == 0x3A)// relay is energized
             {
                 __delay_ms(50); //time for relay to switch
                 if(relay_NC_P4 == 1 && relay_NO_P8 == 0)//relay energized
@@ -1993,7 +2038,7 @@ void init_i2c(void)
     TRISC4 = 1; /* these pins must be configured as i/p for 1527 */
     SSP1STAT |= 0x80; /* Slew rate disabled */
     SSP1CON1 = 0x28; /* SSPEN = 1, I2C Master mode, clock = FOSC/(4 * (SSPADD + 1)) */
-    SSP1ADD = 0x14; /* 100kHz @ 4MHz Fosc */
+    SSP1ADD = 0x22;//0x14 /* 100kHz @ 4MHz Fosc */
 }
 
 void init_ADC(void)
@@ -2033,8 +2078,11 @@ void power_supply_set(unsigned char supply)
     {
         case AC1:
             power_supply_k7 = 1;
+          
             power_supply_k8 = 1;
-            power_supply_k9 = 1;
+    
+           // power_supply_k9 = 1;
+           
             break;
         case AC2:
             power_supply_k7 = 1;
@@ -2072,55 +2120,23 @@ void Vout_set(int Volts)
     // float fitting = SMPS_GAIN*(float)(milliVolts) + SMPS_CONST;
 
     //   digi_step = 128-(res_variable*128)/DIGITAL_RES_MAX;
+    
+    
     switch(Volts)
     {
-        case 6:
-            digi_step = 20;
-            break;
-        case 7:
-            digi_step = 39;
-            break;
-        case 8:
-            digi_step = 52;
-            break;
-        case 9:
-            digi_step = 62;
-            break;
-        case 10:
-            digi_step = 70;
-            break;
-        case 11:
-            digi_step = 76;
-            break;
+        // On test jig R5 = 27K 
+                    
         case 12:
-            digi_step = 81;
-            break;
-        case 13:
-            digi_step = 85;
-            break;
-        case 14:
-            digi_step = 88;
-            break;
-        case 15:
-            digi_step = 91;
+            digi_step = 52; //12.1V
             break;
         case 16:
-            digi_step = 94;
+            digi_step = 75; // 16.4V
             break;
-        case 17:
-            digi_step = 96;
-            break;
-        case 18:
-            digi_step = 98;
-            break;
-        case 20:
-            digi_step = 102;
-            break;
-        case 25:
-            digi_step = 112;
+        case 27:
+            digi_step = 126; // 27.5V Max
             break;
         default:
-            digi_step = 0;
+            digi_step = 0; // 8.3V
             break;
     }
 
@@ -2129,6 +2145,9 @@ void Vout_set(int Volts)
     //the above is the ideal, 
 
     digitalpot((unsigned char) digi_step);
+    
+     //print_screen("12V is set", "");
+    // __delay_ms(2000);
 }
 
 void digitalpot(unsigned char value)
@@ -2139,6 +2158,8 @@ void digitalpot(unsigned char value)
     i2c_Write(value);
     i2c_Stop();
     __delay_ms(20);
+    
+     
 }
 
 void debug_fast_tx(unsigned int data)
