@@ -67,6 +67,7 @@
 #define pickit_LED_blue     RE4
 #define pickit_LED_red      RE6
 #define pickit_LED_green    RE5
+#define Prog_sel            RF0 // use to select to program Rx3 or Condo
 
 //#define motor_direction_1 RA0
 //#define motor_direction_2 RA1
@@ -81,26 +82,28 @@
 #define board_detect RF3
 
 #define comms_MCLR_input RG1
-#define comms_TX_in RG0
-#define comms_TX LATG0
-#define comms_TX_TRIS TRISG0
-#define comms_RX RG3
+#define comms_TX_in RG1
+#define comms_TX LATG1 
+#define comms_TX_TRIS TRISG1
+#define comms_RX RG0
 
 #define CH2_P10_in RF1
-#define CH3_P13_in RF0
+//#define CH3_P13_in RF0
 
 
 #define mclr_reset_P10 LATD7
 #define mclr_reset_P10_TRIS TRISD7
 
-#define power_5v        LATA7
+#define pickit_rel_4        LATA7
+#define pickit_rel_3        LATB7
 
 
 #define BM_COMM_input_P23   RA3
 #define skip_programming        RA2
 
-#define relay_NC_P4 RF5
-#define relay_NO_P8 RF2
+#define relay_1_check RF5 // Pins are pulled high  and measured (must be 5v) 
+#define relay_2_check RF2 // Then Relay is witched on and pulls the pin to GND
+#define relay_3_check RF1 // Pin must measure 0v. Relay is working.
 
 #define Bus_input RC1
 #define Bus_fet LATC0
@@ -487,7 +490,7 @@ void main(void)
     TRISD = 0b10001011; //
     TRISE = 0b11110110; //
     TRISF = 0b00101111; //
-    TRISG = 0b11101111; //
+    TRISG = 0b11101101; // ou = 0  in = 1
     //
     PORTA = 0b00000000;
     PORTB = 0b00000000;
@@ -500,6 +503,9 @@ void main(void)
     WPUB = 0b00000000; //
     WPUD = 0b00000000; //
     WPUE = 0b00000000; //
+    WPUG = 0b00000000; //  
+    
+    
     //
     ANSELA = 0b00000000; //
     ANSELB = 0b00001100; //
@@ -586,7 +592,7 @@ void main(void)
     //power 27v, measure 12v, 5v, current
     Vout_set(27);
     power_supply_set(AC1);
-    __delay_ms(2000); //tested, works down to 75ms
+    __delay_ms(150); //tested, works down to 75ms
     testjig_timer = T0_500ms;
     while((ADC_get_val(ADC_5v_test) < P5_5v_test_min) && 
             (ADC_get_val(ADC_5v_test) > P5_5v_test_max)&&
@@ -601,22 +607,17 @@ void main(void)
     
     if((ADC_get_val(ADC_5v_test) < P5_5v_test_min))
     {
-        lcd_print_int(ADC_get_val(ADC_5v_test), 11, 0, 0);
-         __delay_ms(2000);
         print_error("16v-5v supply", "Volt Error L");
     }
     else if((ADC_get_val(ADC_5v_test) > P5_5v_test_max))
     {
-         
-        print_error("16v-5v supply", "Volt Error H");
+         print_error("16v-5v supply", "Volt Error H");
     }
     else if((ADC_get_val(ADC_12v_test) < P2_27v_test_min))
         print_error("16v-12v supply", "Volt Error L");
     else if((ADC_get_val(ADC_12v_test) > P2_27v_test_max))
     {
-        lcd_print_int(ADC_get_val(ADC_12v_test), 5, 0, 1);
-        __delay_ms(1000);
-        print_error("16v-12v supply", "Volt Error H");
+         print_error("16v-12v supply", "Volt Error H");
     }
     else if((temp >= 60))
     {
@@ -631,26 +632,60 @@ void main(void)
     // </editor-fold>
 
     // <editor-fold defaultstate="collapsed" desc="Programming">
-    if(skip_programming == 1)
+    if(skip_programming == 1)// program via PIC KIT
     {
-        power_supply_set(AC1);
+        Vout_set(12); // set Vout 12V
+        power_supply_set(AC1);// Power up RX3
 
         print_screen("Pickit Programming", "");
-        power_5v = 1; //force the 5v rail to be powered during programming.
+        
+        
+        //power_5v = 1; //force the 5v rail to be powered during programming.
+        //latch K3
         __delay_ms(100); //allow relay to switch
         print_screen("Waiting for", " Programming");
 
-
-        pickit_rel_1 = 1;
-        pickit_rel_2 = 1;
-        __delay_ms(100);//relay switch delay
-        pickit_button_relay = 1;
-        __delay_ms(1000);//button press delay
-        pickit_button_relay = 0;
-        __delay_ms(4500);//program delay
-        pickit_rel_1 = 0;
-        pickit_rel_2 = 0;
-        __delay_ms(100);//disconnect delay
+        if(Prog_sel == 1)//Select RX3 pic kit to program
+        {
+            pickit_rel_4 = 0; // Make sure pic kit 1 is not connected 
+            pickit_rel_3 = 0; // Make sure pic kit 1 is not connected
+            
+            pickit_rel_1 = 1; // Pic kit 2 DTA and MCLR
+            pickit_rel_2 = 1; // Pic kit 2 CLK
+            __delay_ms(100);//relay switch delay
+            pickit_button_relay = 1;// Prompt Pic kit to program
+            
+            __delay_ms(1000);//button press delay
+            pickit_button_relay = 0;
+            __delay_ms(4500);//program delay
+            pickit_rel_1 = 0;
+            pickit_rel_2 = 0;
+            __delay_ms(100);//disconnect delay
+            
+        }else if(Prog_sel == 0)//Select Condo pic kit to program 
+         {  
+            pickit_rel_1 = 0; // Make sure pic kit 2 is not connected 
+            pickit_rel_2 = 0; // Make sure pic kit 2 is not connected
+            
+            
+            pickit_rel_4 = 1; // Pic kit 1 DTA and MCLR
+            pickit_rel_3 = 1; // Pic kit 1 CLK
+            
+            __delay_ms(100);//relay switch delay
+            pickit_button_relay = 1;// Prompt Pic kit to program
+            
+            __delay_ms(1000);//button press delay
+            pickit_button_relay = 0;
+            __delay_ms(4500);//program delay
+            pickit_rel_4 = 0;
+            pickit_rel_3 = 0;
+            __delay_ms(100);//disconnect delay
+         }
+            
+            
+        
+        
+        
 
 
         //        pickit_state = pickit_start; //start Pickit, this runs in the interrupt        
@@ -686,17 +721,45 @@ void main(void)
     unsigned char device_type;
     unsigned char RX_data = 0;
     unsigned int i;
+    
+    pickit_rel_1 = 0; // Make sure Relay is of so that RX_TX bit bang can happen
+    pickit_rel_2 = 0; //**
+    pickit_rel_3 = 0; //**
+    pickit_rel_4 = 0; //**
+    
+    /*
+    unsigned char thing =0; 
+    while(1)
+    {
+        print_screen("tx", "");
+        TX_one(0x55); //establish comms
+        
+        thing = RX_one();
+        print_screen("Rx done", "");
+        
+       __delay_ms(1000);
+       
+        lcd_print_int(thing, 0, 0, 0); 
+        
+        __delay_ms(1000);
+        
+    }
+     */
     for(i = 0; i < 100; i++)
     {
         TX_one(0x01); //establish comms
         device_type = RX_one_timeout();
         if((device_type == Device_Condo3) || (device_type == Device_RX3) || (device_type == Device_Mem_Copier))
+        {   
+            lcd_print_int(device_type, 5, 0, 0);
+            __delay_ms(1000);
             break;
+        }
         lcd_print_int(i, 11, 0, 0);
         lcd_print_int(device_type, 5, 0, 0);
         __delay_ms(50);
     }
-    if(i >= 10)
+    if(i >= 30)
     {
 //        lcd_print_int(device_type, 10, 0, 0);
 //        while(1);
@@ -744,210 +807,171 @@ void main(void)
     if((device_type == Device_Condo3)|| (device_type == Device_RX3))
     {
         //Test Relay
-        Vout_set(12);
+        Vout_set(27);
         print_screen("Test Relay", "");
-        
+        /*
         while(1)
         {
+            
             TX_one(0x30);// relay de energised I think
-
-            __delay_ms(1000);
+            lcd_print_int(RX_one(), 0 , 0 , 0);// print feedback
+            __delay_ms(500);
 
             TX_one(0x31); // relay energised I think
+            lcd_print_int(RX_one(), 0 , 0 , 0);// print feedback
+            __delay_ms(500);
+            
+            TX_one(0x40);// relay de energised I think
+            lcd_print_int(RX_one(), 0 , 0 , 0);// print feedback
+            __delay_ms(500);
 
-            __delay_ms(2000);
-        }
+            TX_one(0x41); // relay energised I think
+            lcd_print_int(RX_one(), 0 , 0 , 0);// print feedback
+            __delay_ms(500);
+            
+              
+            TX_one(0x50);// relay de energised I think
+            lcd_print_int(RX_one(), 0 , 0 , 0);// print feedback
+            __delay_ms(500);
+
+            TX_one(0x51); // relay energised I think
+            lcd_print_int(RX_one(), 0 , 0 , 0);// print feedback
+            __delay_ms(500);
+            
+        }*/
+         
         
-        if(relay_NC_P4 == 0 && relay_NO_P8 == 1)//relay de-energized
+        ///////////////////////////////////////////////////////////////////////
+        //*********************** Relay 1 *************************************
+        //////////////////////////////////////////////////////////////////////
+        TX_one(0x31);// relay de energized
+        if(RX_one() == 0x3B)// confirm relay is de energized
         {
-            TX_one(0x31);
-            if(RX_one() == 0x3A)// relay is energized
+            __delay_ms(100); //time for relay to switch
+            if(relay_1_check) // Check if relay 1 is off
             {
-                __delay_ms(50); //time for relay to switch
-                if(relay_NC_P4 == 1 && relay_NO_P8 == 0)//relay energized
+                TX_one(0x30); // Energize relay
+                if(RX_one() == 0x3A)// relay is energized
                 {
-                    TX_one(0x31);
-                    if(RX_one() == 0x3A)
+                    __delay_ms(100); //time for relay to switch
+
+                    if(relay_1_check == 0)//Relay working
                     {
-                        __delay_ms(50); //time for relay to switch
-                        if(relay_NC_P4 == 0 && relay_NO_P8 == 1)//relay de-energized
+                        TX_one(0x31); // de energize relay
+                        if(RX_one() == 0x3B)
                         {
-                            print_screen("Test Relay", "Pass");
-                        }
+                            __delay_ms(50); //time for relay to switch
+                            if(relay_1_check == 1)
+                                print_screen("Test Relay", "Pass");
+                            else 
+                                print_error("Relay1 !de-energized", " Error 2"); // Relay does not want to turn off
+                        }   
                         else
-                            print_error("Relay de-energized", " Error 2");
+                            print_error("Comms Error", " Error 3");
                     }
                     else
-                        print_error("Comms Error", " 3");
+                        print_error("Relay1 !latched", "Error 2");
                 }
                 else
-                    print_error("Relay energized", " Error");
+                    print_error("Comms Error", " Error 3");
             }
             else
-                print_error("Comms Error", " 4");
+                print_error("Relay1 latched", "Error 4");
         }
         else
-            print_error("Relay de-energized", " Error 1");
-    }
+            print_error("Comms Error", " Error 3");
+        
+        ///////////////////////////////////////////////////////////////////////
+        //*********************** Relay 2 *************************************
+        //////////////////////////////////////////////////////////////////////
+       TX_one(0x41);// relay de energized
+        if(RX_one() == 0x4B)// confirm relay is de energized
+        {
+            __delay_ms(100); //time for relay to switch
+            if(relay_2_check) // Check if relay 2 is off
+            {
+                TX_one(0x40); // Energize relay
+                if(RX_one() == 0x4A)// relay is energized
+                {
+                    __delay_ms(100); //time for relay to switch
+
+                    if(relay_2_check == 0)//Relay working
+                    {
+                        TX_one(0x41); // de energize relay
+                        if(RX_one() == 0x4B)
+                        {
+                            __delay_ms(100); //time for relay to switch
+                            if(relay_2_check == 1)
+                                print_screen("Test Relay2", "Pass");
+                            else 
+                                print_error("Relay2 !de-energized", " Error 2"); // Relay does not want to turn off
+                        }   
+                        else
+                            print_error("Comms Error", " Error 3");
+                    }
+                    else
+                        print_error("Relay2 !latched", "Error 2");
+                }
+                else
+                    print_error("Comms Error", " Error 3");
+            }
+            else
+                print_error("Relay2 latched", "Error 4");
+        }
+        else
+            print_error("Comms Error", " Error 3");
+        
+       ///////////////////////////////////////////////////////////////////////
+        //*********************** Relay 3 *************************************
+        //////////////////////////////////////////////////////////////////////
+      
+       TX_one(0x51);// relay de energized
+        if(RX_one() == 0x5B)// confirm relay is de energized
+        {
+            __delay_ms(100); //time for relay to switch
+            if(relay_3_check) // Check if relay 3 is off
+            {
+                               
+                TX_one(0x50); // Energize relay
+                if(RX_one() == 0x5A)// relay is energized
+                {
+                    __delay_ms(100); //time for relay to switch
+
+                    if(relay_3_check == 0)//Relay working
+                    {
+                        TX_one(0x51); // de energize relay
+                        if(RX_one() == 0x5B)
+                        {
+                            __delay_ms(100); //time for relay to switch
+                            if(relay_3_check == 1)
+                                print_screen("Test Relay", "Pass");
+                            else 
+                                print_error("Relay3 !de-energized", " Error 2"); // Relay does not want to turn off
+                        }   
+                        else
+                            print_error("Comms Error", " Error 3");
+                    }
+                    else
+                        print_error("Relay3 !latched", "Error 2");
+                }
+                else
+                    print_error("Comms Error", " Error 3");
+            }
+            else
+                print_error("Relay3 latched", "Error 4");
+        }
+        else
+            print_error("Comms Error", " Error 3");
+       
+       print_screen("relays passed", "fuck yea");
+       while(1);
+    }// relay tests done
+
+    
 
     if((device_type == Device_Condo3)|| (device_type == Device_RX3))
     {
-        //Test CH2 
-        Vout_set(15);
-        print_screen("Test CH2", "");
-        TX_one(0x41); //turn channel off
-        if(RX_one() == 0x4A)
-        {
-            __delay_ms(10); //FET switch time  
-            if(CH2_P10_in == 1 && CH3_P13_in == 1)//both channels off
-            {
-                TX_one(0x40); //turn channel on
-                if(RX_one() == 0x4A)
-                {
-                    __delay_ms(10);
-                    if(CH2_P10_in == 0 && CH3_P13_in == 1)//CH2 on
-                    {
-                        TX_one(0x41); //turn channel off
-                        if(RX_one() == 0x4A)
-                        {
-                            CH2_high_current_K13_P10 = 1; //relay on, supply high current to CH2
-                            __delay_ms(50); //relay switch time
-                            TX_one(0x40); //turn channel on
-                            if(RX_one() == 0x4A)
-                            {
-                                __delay_ms(50); //FET switch time
-                                tj_timer = 1500;
-                                while(tj_timer && CH2_P10_in == 0);
-                                if(CH2_P10_in == 1 && CH3_P13_in == 1)//CH2 off (PTC trip)
-                                {
-                                    CH2_high_current_K13_P10 = 0; //relay off,
-                                    TX_one(0x41); //turn channel off
-                                    RX_one();
-                                    __delay_ms(150); //PTC reset time
-                                    TX_one(0x40); //turn channel on
-                                    RX_one();
-                                    __delay_ms(20); //FET switch time
-                                    if(CH2_P10_in == 0 && CH3_P13_in == 1)//CH2 on (PTC reset)
-                                    {
-                                        TX_one(0x41); //turn channel off
-                                        if(RX_one() == 0x4A)
-                                        {
-                                            __delay_ms(10);
-                                            if(CH2_P10_in == 1 && CH3_P13_in == 1)//both channels off
-                                            {
-                                                print_screen("Test CH2", "ok");
-                                            }
-                                            else
-                                                print_error("CH2 - OFF", " Error 2");
-                                        }
-                                        else
-                                            print_error("Comms Error", " 5");
-                                    }
-                                    else
-                                        print_error("CH2 - ON", "PTC Error reset");
-                                }
-                                else
-                                {
-                                    trip_current = get_30v_current();
-                                    print_error("CH2 - ON", "PTC Error trip");
-                                }
-                            }
-                            else
-                                print_error("Comms Error", " 6a");
-                        }
-                        else
-                            print_error("Comms Error", " 6b");
-                    }
-                    else
-                        print_error("CH2 - ON", " Error");
-                }
-                else
-                    print_error("Comms Error", " 6");
-            }
-            else
-                print_error("CH2 - OFF", " Error 1");
-        }
-        else
-            print_error("Comms Error", " 7");
-
-
-        //Test CH3 
-        print_screen("Test CH3", "");
-        TX_one(0x51); //turn channel off
-        if(RX_one() == 0x5A)
-        {
-            __delay_ms(10); //FET switch time  
-            if(CH2_P10_in == 1 && CH3_P13_in == 1)//both channels off
-            {
-                TX_one(0x50); //turn channel on
-                if(RX_one() == 0x5A)
-                {
-                    __delay_ms(10);
-                    if(CH2_P10_in == 1 && CH3_P13_in == 0)//CH2 on
-                    {
-                        TX_one(0x51); //turn channel off
-                        if(RX_one() == 0x5A)
-                        {
-                            CH3_high_current_K6_P13 = 1; //relay on, supply high current to CH2
-                            __delay_ms(50); //relay switch time
-                            TX_one(0x50); //turn channel on
-                            if(RX_one() == 0x5A)
-                            {
-                                __delay_ms(50); //FET switch time
-                                tj_timer = 1500;
-                                while(tj_timer && CH3_P13_in == 0);
-                                if(CH2_P10_in == 1 && CH3_P13_in == 1)//CH2 off (PTC trip)
-                                {
-                                    CH3_high_current_K6_P13 = 0; //relay off,
-                                    TX_one(0x51); //turn channel off
-                                    RX_one();
-                                    __delay_ms(150); //PTC reset time
-                                    TX_one(0x50); //turn channel on
-                                    RX_one();
-                                    __delay_ms(20); //FET switch time
-                                    if(CH2_P10_in == 1 && CH3_P13_in == 0)//CH2 on (PTC reset)
-                                    {
-                                        TX_one(0x51); //turn channel off
-                                        if(RX_one() == 0x5A)
-                                        {
-                                            __delay_ms(10);
-                                            if(CH2_P10_in == 1 && CH3_P13_in == 1)//both channels off
-                                            {
-                                                print_screen("Test CH3", "ok");
-                                            }
-                                            else
-                                                print_error("CH3 - OFF", " Error 2");
-                                        }
-                                        else
-                                            print_error("Comms Error", " 8");
-                                    }
-                                    else
-                                        print_error("CH3 - ON", "PTC Error reset");
-                                }
-                                else
-                                    print_error("CH3 - ON", "PTC Error trip");
-                            }
-                            else
-                                print_error("Comms Error", " 8b");
-                        }
-                        else
-                            print_error("Comms Error", " 8a");
-                    }
-                    else
-                        print_error("CH3 - ON", " Error");
-                }
-                else
-                    print_error("Comms Error", " 9");
-            }
-            else
-                print_error("CH3 - OFF", " Error 1");
-        }
-        else
-            print_error("Comms Error", " 10");
-    }
-
-    if((device_type == Device_Condo3)|| (device_type == Device_RX3))
-    {
+        /* // Can not measure 3v3 on RX 2019. 
         //test RF - 3v3
         print_screen("Test RF", "3v3");
         TX_one(0x70);
@@ -966,10 +990,11 @@ void main(void)
             print_error("Test RF 3v3", " Error - Low");
 
         print_screen("Test RF", "3v3 - OK");
-
+        */
+        
         //test RF - RSSI
         testjig_timer = T0_3s;
-        RF_out = 1;
+        RF_out = 1; // active remote 
         __delay_ms(200); //tested to 100ms
         print_screen("Test RF", "RSSI");
         TX_one(0x60);
@@ -987,7 +1012,7 @@ void main(void)
 //        }
 
         
-        RF_out = 0;
+        RF_out = 0; // turn remote off. 
         if(RX_data == 0)
             print_error("Comms Error", " 13");
         else if(RX_data == 0xFF)
@@ -1031,7 +1056,7 @@ void main(void)
             
             print_screen("Test RF", " cycling power");
             power_supply_set(NONE);
-            power_5v = 0; //stop powering  5v rail
+          //  power_5v = 0; //stop powering  5v rail
             CH2_high_current_K13_P10 = 0;
             CH3_high_current_K6_P13 = 0;
              comms_TX_TRIS = 1;//set as input, stop pulling this high
@@ -1130,7 +1155,7 @@ void testjig_done(unsigned char state, unsigned char device_type)
     {
         RF_out = 0;
         power_supply_set(NONE);
-        power_5v = 0; //stop powering  5v rail
+       // power_5v = 0; //stop powering  5v rail
         CH2_high_current_K13_P10 = 0;
         CH3_high_current_K6_P13 = 0;
           comms_TX_TRIS = 1;//set as input, stop pulling this high
@@ -1672,7 +1697,7 @@ void hund_conv(int n) //a function to calculate 3 digits quickly
 void print_error(const unsigned char *top, const unsigned char *bottom) //A function to display 'top' and 'bottom' on the LCD perminanently
 {
     power_supply_set(NONE);
-    power_5v = 0; //stop powering  5v rail
+//    power_5v = 0; //stop powering  5v rail
     CH2_high_current_K13_P10 = 0;
     CH3_high_current_K6_P13 = 0;
       comms_TX_TRIS = 1;//set as input, stop pulling this high
@@ -2206,17 +2231,17 @@ void debug_fast_tx(unsigned int data)
 
 void TX_one(unsigned char data)
 {
-    comms_TX_TRIS = 0;
+    comms_TX_TRIS = 0; // make RG0 output
     GIE = 0;//interrupts disabled to increase delay timing accuracy
-    comms_TX = 0;
-    __delay_us(105);
+    comms_TX = 0; //
+    __delay_us(100);//105us
 
     unsigned char i;
     for(i = 0; i < 8; i++)
     {
         comms_TX = data & 0x01;
         data = data >> 1;
-        __delay_us(105);
+        __delay_us(100);//105us
     }
     comms_TX = 1;
     GIE = 1;
@@ -2239,7 +2264,7 @@ unsigned char RX_one(void)
         else
             data = (data >> 1) | 0x80; // copies the old bit 0 into bit 7
           debug_1 = 0;
-        __delay_us(105);
+        __delay_us(100);//105us
     }
     GIE = 1;
     __delay_us(100);
@@ -2257,12 +2282,12 @@ unsigned char RX_one_timeout(void)
     unsigned char data = 0;
     for(i = 0; i < 8; i++)
     {
-         debug_1 = 1;
+         //debug_1 = 1;
         if(comms_RX == 0)
             data = data >> 1;
         else
             data = (data >> 1) | 0x80; // copies the old bit 0 into bit 7
-          debug_1 = 0;
+        //  debug_1 = 0;
         __delay_us(100);
     }
     __delay_us(100);

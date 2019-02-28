@@ -4886,7 +4886,7 @@ extern char * ftoa(float f, int * status);
 #pragma config LPBOR = OFF
 #pragma config LVP = OFF
 
-# 117
+# 120
 void i2c_Write(unsigned char data);
 void i2c_Start(void);
 void i2c_Stop(void);
@@ -4914,25 +4914,25 @@ void print_error(const unsigned char *top, const unsigned char *bottom);
 void print_screen(const unsigned char *top, const unsigned char *bottom);
 void lcd_print_int(unsigned int number, unsigned int pos, unsigned char decimal, unsigned char ten_thou_digit);
 
-# 155
+# 158
 void init_uart2(void);
 
-# 165
+# 168
 void disable_uart(void);
 
-# 175
+# 178
 void enable_uart(void);
 
-# 182
+# 185
 void send_uart2(unsigned char uart1_data);
 
-# 189
+# 192
 void uart_reset(void);
 
-# 198
+# 201
 unsigned char uart_receive_four(unsigned int uart1_timer);
 
-# 207
+# 210
 unsigned char uart_send_receive_packet(unsigned char opcode, unsigned char byte_1, unsigned char byte_2, unsigned char byte_3, unsigned int uart2_receive_timer);
 
 void buzz_one(unsigned int time);
@@ -4951,7 +4951,7 @@ enum
 pickit_finish, pickit_start, pickit_push_button, pickit_busy, pickit_error, pickit_idle
 } pickit_state;
 
-# 301
+# 304
 const unsigned int popup_delay = 15;
 unsigned char button_beep_delay = 2;
 unsigned char ten_thou, thou, hund, ten, unit;
@@ -4970,7 +4970,7 @@ unsigned char pickit_red_counter = 0;
 unsigned int trip_current;
 unsigned int tj_timer = 0;
 
-# 324
+# 327
 void interrupt isr(void)
 {
 if(INTCONbits.TMR0IF == 1)
@@ -5043,7 +5043,7 @@ break;
 }
 }
 
-# 456
+# 459
 if(buzz_timer)
 buzz_timer--;
 else
@@ -5078,7 +5078,7 @@ TRISC = 0b00011010;
 TRISD = 0b10001011;
 TRISE = 0b11110110;
 TRISF = 0b00101111;
-TRISG = 0b11101111;
+TRISG = 0b11101101;
 
 PORTA = 0b00000000;
 PORTB = 0b00000000;
@@ -5091,6 +5091,9 @@ PORTG = 0b00000000;
 WPUB = 0b00000000;
 WPUD = 0b00000000;
 WPUE = 0b00000000;
+WPUG = 0b00000000;
+
+
 
 ANSELA = 0b00000000;
 ANSELB = 0b00001100;
@@ -5099,7 +5102,7 @@ ANSELE = 0b00000100;
 ANSELF = 0b00000000;
 ANSELG = 0b00000000;
 
-# 516
+# 522
 init_ADC();
 init_current_sink();
 pickit_state = pickit_idle;
@@ -5112,7 +5115,7 @@ RA5 = 1;
 
 init_i2c();
 
-# 536
+# 542
 init_i2c_lcd_5v(8, 1);
 
 print_screen("Multi_RX", "Test-Jig|Startup");
@@ -5160,10 +5163,10 @@ print_error("12v supply", "Curr Error");
 else if(testjig_timer == 0)
 print_error("12v-5v supply", "T-out Error");
 
-# 587
+# 593
 Vout_set(27);
 power_supply_set(0);
-_delay((unsigned long)((2000)*(16000000/4000.0)));
+_delay((unsigned long)((150)*(16000000/4000.0)));
 testjig_timer = (unsigned int)(7518.8/2);
 while((ADC_get_val(0b01011111) < (unsigned int)((((5/11.0)*1024)/4.096)*0.92)) &&
 (ADC_get_val(0b01011111) > (unsigned int)((((5/11.0)*1024)/4.096)*1.08))&&
@@ -5178,21 +5181,16 @@ temp = get_30v_current();
 
 if((ADC_get_val(0b01011111) < (unsigned int)((((5/11.0)*1024)/4.096)*0.92)))
 {
-lcd_print_int(ADC_get_val(0b01011111), 11, 0, 0);
-_delay((unsigned long)((2000)*(16000000/4000.0)));
 print_error("16v-5v supply", "Volt Error L");
 }
 else if((ADC_get_val(0b01011111) > (unsigned int)((((5/11.0)*1024)/4.096)*1.08)))
 {
-
 print_error("16v-5v supply", "Volt Error H");
 }
 else if((ADC_get_val(0b01100011) < (unsigned int)((((26/11.0)*1024)/4.096)*0.9)))
 print_error("16v-12v supply", "Volt Error L");
 else if((ADC_get_val(0b01100011) > (unsigned int)((((26/11.0)*1024)/4.096)*1.2)))
 {
-lcd_print_int(ADC_get_val(0b01100011), 5, 0, 1);
-_delay((unsigned long)((1000)*(16000000/4000.0)));
 print_error("16v-12v supply", "Volt Error H");
 }
 else if((temp >= 60))
@@ -5204,21 +5202,30 @@ print_error("16v supply", "Curr Error");
 else if(testjig_timer == 0)
 print_error("16v-5v supply", "T-out Error");
 
-# 634
+# 635
 if(RA2 == 1)
 {
+Vout_set(12);
 power_supply_set(0);
 
 print_screen("Pickit Programming", "");
-LATA7 = 1;
+
+
+
+
 _delay((unsigned long)((100)*(16000000/4000.0)));
 print_screen("Waiting for", " Programming");
 
+if(RF0 == 1)
+{
+LATA7 = 0;
+LATB7 = 0;
 
 LATC2 = 1;
 LATC7 = 1;
 _delay((unsigned long)((100)*(16000000/4000.0)));
 LATC6 = 1;
+
 _delay((unsigned long)((1000)*(16000000/4000.0)));
 LATC6 = 0;
 _delay((unsigned long)((4500)*(16000000/4000.0)));
@@ -5226,7 +5233,27 @@ LATC2 = 0;
 LATC7 = 0;
 _delay((unsigned long)((100)*(16000000/4000.0)));
 
-# 660
+}else if(RF0 == 0)
+{
+LATC2 = 0;
+LATC7 = 0;
+
+
+LATA7 = 1;
+LATB7 = 1;
+
+_delay((unsigned long)((100)*(16000000/4000.0)));
+LATC6 = 1;
+
+_delay((unsigned long)((1000)*(16000000/4000.0)));
+LATC6 = 0;
+_delay((unsigned long)((4500)*(16000000/4000.0)));
+LATA7 = 0;
+LATB7 = 0;
+_delay((unsigned long)((100)*(16000000/4000.0)));
+}
+
+# 695
 }
 else
 {
@@ -5234,7 +5261,7 @@ print_screen("Pickit Programming", " skipped");
 _delay((unsigned long)((300)*(16000000/4000.0)));
 }
 
-# 680
+# 715
 LATF4 = 0;
 _delay((unsigned long)((100)*(16000000/4000.0)));
 LATF4 = 1;
@@ -5244,17 +5271,28 @@ print_screen("Establishing", "comms");
 unsigned char device_type;
 unsigned char RX_data = 0;
 unsigned int i;
+
+LATC2 = 0;
+LATC7 = 0;
+LATB7 = 0;
+LATA7 = 0;
+
+# 748
 for(i = 0; i < 100; i++)
 {
 TX_one(0x01);
 device_type = RX_one_timeout();
 if((device_type == 0xAA) || (device_type == 0xA1) || (device_type == 0xA2))
+{
+lcd_print_int(device_type, 5, 0, 0);
+_delay((unsigned long)((1000)*(16000000/4000.0)));
 break;
+}
 lcd_print_int(i, 11, 0, 0);
 lcd_print_int(device_type, 5, 0, 0);
 _delay((unsigned long)((50)*(16000000/4000.0)));
 }
-if(i >= 10)
+if(i >= 30)
 {
 
 
@@ -5302,230 +5340,136 @@ print_error("EEPROM size", " Error Mem_copier");
 if((device_type == 0xAA)|| (device_type == 0xA1))
 {
 
-Vout_set(12);
+Vout_set(27);
 print_screen("Test Relay", "");
 
-while(1)
+# 847
+TX_one(0x31);
+if(RX_one() == 0x3B)
+{
+_delay((unsigned long)((100)*(16000000/4000.0)));
+if(RF5)
 {
 TX_one(0x30);
-
-_delay((unsigned long)((1000)*(16000000/4000.0)));
-
-TX_one(0x31);
-
-_delay((unsigned long)((2000)*(16000000/4000.0)));
-}
-
-if(RF5 == 0 && RF2 == 1)
-{
-TX_one(0x31);
 if(RX_one() == 0x3A)
 {
-_delay((unsigned long)((50)*(16000000/4000.0)));
-if(RF5 == 1 && RF2 == 0)
+_delay((unsigned long)((100)*(16000000/4000.0)));
+
+if(RF5 == 0)
 {
 TX_one(0x31);
-if(RX_one() == 0x3A)
+if(RX_one() == 0x3B)
 {
 _delay((unsigned long)((50)*(16000000/4000.0)));
-if(RF5 == 0 && RF2 == 1)
-{
+if(RF5 == 1)
 print_screen("Test Relay", "Pass");
+else
+print_error("Relay1 !de-energized", " Error 2");
 }
 else
-print_error("Relay de-energized", " Error 2");
+print_error("Comms Error", " Error 3");
 }
 else
-print_error("Comms Error", " 3");
+print_error("Relay1 !latched", "Error 2");
 }
 else
-print_error("Relay energized", " Error");
+print_error("Comms Error", " Error 3");
 }
 else
-print_error("Comms Error", " 4");
+print_error("Relay1 latched", "Error 4");
 }
 else
-print_error("Relay de-energized", " Error 1");
+print_error("Comms Error", " Error 3");
+
+
+
+
+TX_one(0x41);
+if(RX_one() == 0x4B)
+{
+_delay((unsigned long)((100)*(16000000/4000.0)));
+if(RF2)
+{
+TX_one(0x40);
+if(RX_one() == 0x4A)
+{
+_delay((unsigned long)((100)*(16000000/4000.0)));
+
+if(RF2 == 0)
+{
+TX_one(0x41);
+if(RX_one() == 0x4B)
+{
+_delay((unsigned long)((100)*(16000000/4000.0)));
+if(RF2 == 1)
+print_screen("Test Relay2", "Pass");
+else
+print_error("Relay2 !de-energized", " Error 2");
 }
+else
+print_error("Comms Error", " Error 3");
+}
+else
+print_error("Relay2 !latched", "Error 2");
+}
+else
+print_error("Comms Error", " Error 3");
+}
+else
+print_error("Relay2 latched", "Error 4");
+}
+else
+print_error("Comms Error", " Error 3");
+
+# 928
+TX_one(0x51);
+if(RX_one() == 0x5B)
+{
+_delay((unsigned long)((100)*(16000000/4000.0)));
+if(RF1)
+{
+
+TX_one(0x50);
+if(RX_one() == 0x5A)
+{
+_delay((unsigned long)((100)*(16000000/4000.0)));
+
+if(RF1 == 0)
+{
+TX_one(0x51);
+if(RX_one() == 0x5B)
+{
+_delay((unsigned long)((100)*(16000000/4000.0)));
+if(RF1 == 1)
+print_screen("Test Relay", "Pass");
+else
+print_error("Relay3 !de-energized", " Error 2");
+}
+else
+print_error("Comms Error", " Error 3");
+}
+else
+print_error("Relay3 !latched", "Error 2");
+}
+else
+print_error("Comms Error", " Error 3");
+}
+else
+print_error("Relay3 latched", "Error 4");
+}
+else
+print_error("Comms Error", " Error 3");
+
+print_screen("relays passed", "fuck yea");
+while(1);
+}
+
+
 
 if((device_type == 0xAA)|| (device_type == 0xA1))
 {
 
-Vout_set(15);
-print_screen("Test CH2", "");
-TX_one(0x41);
-if(RX_one() == 0x4A)
-{
-_delay((unsigned long)((10)*(16000000/4000.0)));
-if(RF1 == 1 && RF0 == 1)
-{
-TX_one(0x40);
-if(RX_one() == 0x4A)
-{
-_delay((unsigned long)((10)*(16000000/4000.0)));
-if(RF1 == 0 && RF0 == 1)
-{
-TX_one(0x41);
-if(RX_one() == 0x4A)
-{
-LATB5 = 1;
-_delay((unsigned long)((50)*(16000000/4000.0)));
-TX_one(0x40);
-if(RX_one() == 0x4A)
-{
-_delay((unsigned long)((50)*(16000000/4000.0)));
-tj_timer = 1500;
-while(tj_timer && RF1 == 0);
-if(RF1 == 1 && RF0 == 1)
-{
-LATB5 = 0;
-TX_one(0x41);
-RX_one();
-_delay((unsigned long)((150)*(16000000/4000.0)));
-TX_one(0x40);
-RX_one();
-_delay((unsigned long)((20)*(16000000/4000.0)));
-if(RF1 == 0 && RF0 == 1)
-{
-TX_one(0x41);
-if(RX_one() == 0x4A)
-{
-_delay((unsigned long)((10)*(16000000/4000.0)));
-if(RF1 == 1 && RF0 == 1)
-{
-print_screen("Test CH2", "ok");
-}
-else
-print_error("CH2 - OFF", " Error 2");
-}
-else
-print_error("Comms Error", " 5");
-}
-else
-print_error("CH2 - ON", "PTC Error reset");
-}
-else
-{
-trip_current = get_30v_current();
-print_error("CH2 - ON", "PTC Error trip");
-}
-}
-else
-print_error("Comms Error", " 6a");
-}
-else
-print_error("Comms Error", " 6b");
-}
-else
-print_error("CH2 - ON", " Error");
-}
-else
-print_error("Comms Error", " 6");
-}
-else
-print_error("CH2 - OFF", " Error 1");
-}
-else
-print_error("Comms Error", " 7");
-
-
-
-print_screen("Test CH3", "");
-TX_one(0x51);
-if(RX_one() == 0x5A)
-{
-_delay((unsigned long)((10)*(16000000/4000.0)));
-if(RF1 == 1 && RF0 == 1)
-{
-TX_one(0x50);
-if(RX_one() == 0x5A)
-{
-_delay((unsigned long)((10)*(16000000/4000.0)));
-if(RF1 == 1 && RF0 == 0)
-{
-TX_one(0x51);
-if(RX_one() == 0x5A)
-{
-LATA6 = 1;
-_delay((unsigned long)((50)*(16000000/4000.0)));
-TX_one(0x50);
-if(RX_one() == 0x5A)
-{
-_delay((unsigned long)((50)*(16000000/4000.0)));
-tj_timer = 1500;
-while(tj_timer && RF0 == 0);
-if(RF1 == 1 && RF0 == 1)
-{
-LATA6 = 0;
-TX_one(0x51);
-RX_one();
-_delay((unsigned long)((150)*(16000000/4000.0)));
-TX_one(0x50);
-RX_one();
-_delay((unsigned long)((20)*(16000000/4000.0)));
-if(RF1 == 1 && RF0 == 0)
-{
-TX_one(0x51);
-if(RX_one() == 0x5A)
-{
-_delay((unsigned long)((10)*(16000000/4000.0)));
-if(RF1 == 1 && RF0 == 1)
-{
-print_screen("Test CH3", "ok");
-}
-else
-print_error("CH3 - OFF", " Error 2");
-}
-else
-print_error("Comms Error", " 8");
-}
-else
-print_error("CH3 - ON", "PTC Error reset");
-}
-else
-print_error("CH3 - ON", "PTC Error trip");
-}
-else
-print_error("Comms Error", " 8b");
-}
-else
-print_error("Comms Error", " 8a");
-}
-else
-print_error("CH3 - ON", " Error");
-}
-else
-print_error("Comms Error", " 9");
-}
-else
-print_error("CH3 - OFF", " Error 1");
-}
-else
-print_error("Comms Error", " 10");
-}
-
-if((device_type == 0xAA)|| (device_type == 0xA1))
-{
-
-print_screen("Test RF", "3v3");
-TX_one(0x70);
-RX_data = RX_one();
-TX_one(0x70);
-RX_data = RX_one();
-if(RX_data == 0)
-print_error("Comms Error", " 11");
-else if(RX_data == 0xFF)
-print_error("Comms Error", " 12");
-else if(RX_data > 179)
-print_error("Test RF 3v3", " Error - High");
-else if(RX_data < 153)
-print_error("Test RF 3v3", " Error - Micrel");
-else if(RX_data < 158)
-print_error("Test RF 3v3", " Error - Low");
-
-print_screen("Test RF", "3v3 - OK");
-
-
+# 996
 testjig_timer = (unsigned int)((3*7518.8));
 RE0 = 1;
 _delay((unsigned long)((200)*(16000000/4000.0)));
@@ -5535,7 +5479,7 @@ RX_data = RX_one();
 TX_one(0x60);
 RX_data = RX_one();
 
-# 990
+# 1015
 RE0 = 0;
 if(RX_data == 0)
 print_error("Comms Error", " 13");
@@ -5580,10 +5524,10 @@ break;
 
 print_screen("Test RF", " cycling power");
 power_supply_set(3);
-LATA7 = 0;
+
 LATB5 = 0;
 LATA6 = 0;
-TRISG0 = 1;
+TRISG1 = 1;
 while(ADC_get_val(0b01011111) > (unsigned int)((((5/11.0)*1024)/4.096)*0.2));
 power_supply_set(0);
 _delay((unsigned long)((200)*(16000000/4000.0)));
@@ -5650,7 +5594,7 @@ if((device_type == 0xAA) || (device_type == 0xA1)|| (device_type == 0xA2))
 
 print_screen("7seg, buzzer,  ", " button test");
 TX_one(0x90);
-TRISG0 = 1;
+TRISG1 = 1;
 _delay((unsigned long)((100)*(16000000/4000.0)));
 while(RG1 == 1);
 print_screen("waiting  ", " for comms");
@@ -5662,7 +5606,7 @@ print_screen("waiting  ", " for comms");
 
 testjig_done(1, device_type);
 
-# 1124
+# 1149
 testjig_done(1, device_type);
 }
 
@@ -5672,10 +5616,10 @@ while(1)
 {
 RE0 = 0;
 power_supply_set(3);
-LATA7 = 0;
+
 LATB5 = 0;
 LATA6 = 0;
-TRISG0 = 1;
+TRISG1 = 1;
 debug_fast_tx(11110);
 debug_fast_tx(state);
 switch(state)
@@ -5744,7 +5688,7 @@ buzz_timer = time;
 LATC5 = 1;
 }
 
-# 1209
+# 1234
 void i2c_Start(void)
 {
 
@@ -5813,7 +5757,7 @@ _delay((unsigned long)((2)*(16000000/4000.0)));
 i2c_Stop();
 }
 
-# 1300
+# 1325
 void clear_lcd(void)
 {
 i2c_Start();
@@ -5872,7 +5816,7 @@ i2c_Write(0x0F);
 i2c_Stop();
 }
 
-# 1569
+# 1594
 void contrast_set(unsigned char contrast)
 {
 char cont_low = 0x70;
@@ -5933,14 +5877,14 @@ ten_thou = (hund * 0x67) >> 10;
 hund = hund - 10 * ten_thou;
 }
 
-# 1672
+# 1697
 void print_error(const unsigned char *top, const unsigned char *bottom)
 {
 power_supply_set(3);
-LATA7 = 0;
+
 LATB5 = 0;
 LATA6 = 0;
-TRISG0 = 1;
+TRISG1 = 1;
 RE0 = 0;
 debug_fast_tx(12345);
 buzz_one(1000);
@@ -6114,7 +6058,7 @@ i2c_write_char(charmap[i]);
 clear_lcd();
 }
 
-# 1906
+# 1931
 void lcd_print_int(unsigned int number, unsigned int pos, unsigned char decimal, unsigned char ten_thou_digit)
 {
 lcd_set_cursor(2, pos + 1 - ten_thou_digit);
@@ -6141,7 +6085,7 @@ if(decimal & 0x02)i2c_write_char('.');
 i2c_write_char(unit + 48);
 }
 
-# 1977
+# 2002
 void send_uart2(unsigned char uart2_data)
 {
 while(TX2STAbits.TRMT == 0);
@@ -6284,7 +6228,7 @@ void Vout_set(int Volts)
 {
 unsigned long digi_step = 0;
 
-# 2125
+# 2150
 switch(Volts)
 {
 
@@ -6303,7 +6247,7 @@ digi_step = 0;
 break;
 }
 
-# 2147
+# 2172
 digitalpot((unsigned char) digi_step);
 
 
@@ -6327,7 +6271,7 @@ void debug_fast_tx(unsigned int data)
 GIE = 0;
 LATD2 = 0;
 
-# 2174
+# 2199
 __nop();
 __nop();
 __nop();
@@ -6363,19 +6307,19 @@ GIE = 1;
 
 void TX_one(unsigned char data)
 {
-TRISG0 = 0;
+TRISG1 = 0;
 GIE = 0;
-LATG0 = 0;
-_delay((unsigned long)((105)*(16000000/4000000.0)));
+LATG1 = 0;
+_delay((unsigned long)((100)*(16000000/4000000.0)));
 
 unsigned char i;
 for(i = 0; i < 8; i++)
 {
-LATG0 = data & 0x01;
+LATG1 = data & 0x01;
 data = data >> 1;
-_delay((unsigned long)((105)*(16000000/4000000.0)));
+_delay((unsigned long)((100)*(16000000/4000000.0)));
 }
-LATG0 = 1;
+LATG1 = 1;
 GIE = 1;
 _delay((unsigned long)((100)*(16000000/4000000.0)));
 }
@@ -6383,7 +6327,7 @@ _delay((unsigned long)((100)*(16000000/4000000.0)));
 unsigned char RX_one(void)
 {
 
-while(RG3 == 1);
+while(RG0 == 1);
 GIE = 0;
 _delay((unsigned long)((150)*(16000000/4000000.0)));
 unsigned char i;
@@ -6391,12 +6335,12 @@ unsigned char data = 0;
 for(i = 0; i < 8; i++)
 {
 LATF4 = 1;
-if(RG3 == 0)
+if(RG0 == 0)
 data = data >> 1;
 else
 data = (data >> 1) | 0x80;
 LATF4 = 0;
-_delay((unsigned long)((105)*(16000000/4000000.0)));
+_delay((unsigned long)((100)*(16000000/4000000.0)));
 }
 GIE = 1;
 _delay((unsigned long)((100)*(16000000/4000000.0)));
@@ -6408,18 +6352,18 @@ unsigned char RX_one_timeout(void)
 {
 
 uart_receive_timer = 500;
-while(RG3 == 1 && uart_receive_timer);
+while(RG0 == 1 && uart_receive_timer);
 _delay((unsigned long)((150)*(16000000/4000000.0)));
 unsigned char i;
 unsigned char data = 0;
 for(i = 0; i < 8; i++)
 {
-LATF4 = 1;
-if(RG3 == 0)
+
+if(RG0 == 0)
 data = data >> 1;
 else
 data = (data >> 1) | 0x80;
-LATF4 = 0;
+
 _delay((unsigned long)((100)*(16000000/4000000.0)));
 }
 _delay((unsigned long)((100)*(16000000/4000000.0)));
