@@ -343,7 +343,7 @@ void interrupt isr(void)
     }
     if(PIR1bits.TMR2IF == 1)//timer 2 interrupt, 1ms
     {//used to control the current sink
-
+        /*
         if(pickit_timer)
             pickit_timer--;
         else
@@ -395,7 +395,7 @@ void interrupt isr(void)
                     break;
             }
         }
-
+         */ 
         //        switch(current_sink_state)
         //        {
         //                //          case sampling_ADC:
@@ -490,7 +490,7 @@ void main(void)
     TRISD = 0b10001011; //
     TRISE = 0b11110110; //
     TRISF = 0b00101111; //
-    TRISG = 0b11101101; // ou = 0  in = 1
+    TRISG = 0b11101111; // ou = 0  in = 1
     //
     PORTA = 0b00000000;
     PORTB = 0b00000000;
@@ -503,7 +503,7 @@ void main(void)
     WPUB = 0b00000000; //
     WPUD = 0b00000000; //
     WPUE = 0b00000000; //
-    WPUG = 0b00000000; //  
+    WPUG = 0b00000010; //  
     
     
     //
@@ -684,14 +684,62 @@ void main(void)
             
             
         
+        //delay and check pick kit state
+        // power pic kit with k13 k11
         
-        
+            if(pickit_timer)
+                pickit_timer--;
+            else
+            {
+                switch(pickit_state)
+                {
+                    case pickit_start:
+                        pickit_rel_1 = 1;
+                        pickit_rel_2 = 1;
+                        pickit_timer = 10; //allow 10ms for relays to switch
+                        pickit_state = pickit_push_button;
+                        break;
+                    case pickit_push_button:
+                        pickit_timer = 1000; //allow 300ms for relays to push button
+                        pickit_button_relay = 1;
+                        pickit_state = pickit_busy;
+                        break;
+                    case pickit_busy:
+                        pickit_button_relay = 0;
+                        if(pickit_LED_red == 0)
+                        {
+                            pickit_red_counter++;
+                            if(pickit_red_counter > 100)
+                                pickit_state = pickit_finish;
+                        }
+                        else
+                            pickit_red_counter = 0;
+                        if(pickit_LED_green == 0)//an error occurred
+                        {
+                            pickit_state = pickit_error;
+                            pickit_timer = 1000;
+                        }
+                        else if(pickit_LED_blue == 0)//back in standby
+                        {
+                            pickit_state = pickit_finish;
+                        }
+                        pickit_timer = 1;
+                        break;
+                    case pickit_error:
+                        pickit_rel_1 = 0;
+                        pickit_rel_2 = 0;
+                        break;
+                    case pickit_finish:
+                        pickit_rel_1 = 0;
+                        pickit_rel_2 = 0;
+                        pickit_state = pickit_idle;
+                        break;
+                    case pickit_idle:
+                        break;
+                }
+            }
 
-
-        //        pickit_state = pickit_start; //start Pickit, this runs in the interrupt        
-        //        while((pickit_state != pickit_idle) && (pickit_state != pickit_error));
-        //        if(pickit_state == pickit_error)
-        //            print_error("Programming", "Error");
+     
     }
     else//if skip jumper is on don't program
     {
@@ -963,8 +1011,8 @@ void main(void)
         else
             print_error("Comms Error", " Error 3");
        
-       print_screen("relays passed", "fuck yea");
-       while(1);
+      
+       
     }// relay tests done
 
     
@@ -1021,7 +1069,7 @@ void main(void)
             print_error("Comms Error", " 14b");
                 else if(RX_data >230)
             print_error("Comms Error", " 14c");
-        else if(RX_data > 120)
+        else if(RX_data > 125)
         {
             lcd_print_int(RX_data, 5, 0, 1);
             __delay_ms(5000);
@@ -1040,19 +1088,29 @@ void main(void)
         {
             // test RF decode
             testjig_timer = T0_3s;
-            RF_out = 1;
+            RF_out = 1; // make remote transmit
             __delay_ms(200); //tested to 100ms
             for(i = 0; i < 5; i++)
             {
                 TX_one(0x61);
                 RX_data = RX_one();
-                if(RX_data == 1)//break if pass
+                clear_lcd();
+                print_screen("RX 0x61","");
+                lcd_print_int(RX_data, 0, 0, 0);
+                __delay_ms(1000);
+                if(RX_data == 2)//break if pass
                     break;
                 __delay_ms(200); //allow time for interfering remote to stop
             }
             RF_out = 0;
-            if(RX_data == 1)//break if pass
+            clear_lcd();
+            
+            if(RX_data == 2)//break if pass
+            {
+                print_screen("break","Break");
+                __delay_ms(1000);
                 break;
+            }
             
             print_screen("Test RF", " cycling power");
             power_supply_set(NONE);
@@ -1066,8 +1124,8 @@ void main(void)
 
             for(i = 0; i < 10; i++)
             {
-                TX_one(0x01); //establish comms
                 unsigned char response;
+                TX_one(0x01); //establish comms
                 response = RX_one_timeout();
                 if((response == Device_Condo3) || (response == Device_RX3))
                     break;
@@ -1076,7 +1134,7 @@ void main(void)
                 __delay_ms(50);
             }
         }
-        if(RX_data == 1)//New key
+        if(RX_data == 2)//New key
             print_screen("Test RF", "Decode New - OK");
         else if(RX_data == 2)//New key
             print_error("Test RF", "Decode Old -Fail");
@@ -1126,9 +1184,9 @@ void main(void)
         //7seg, buzzer all on --> UP
         print_screen("7seg, buzzer,  ", " button test");
         TX_one(0x90);
-        comms_TX_TRIS = 1; //allow DUT to controll screen
-        __delay_ms(100);
-        while(comms_MCLR_input == 1);
+        comms_TX_TRIS = 1; //allow DUT to control screen
+        __delay_ms(1000);
+        while(!comms_MCLR_input);
         print_screen("waiting  ", " for comms");
         //    __delay_ms(300);
         //    RX_data = RX_one();
@@ -1136,17 +1194,15 @@ void main(void)
         //        print_error("Comms Error", " 17");
     }
 
+   
+    
     testjig_done(1, device_type);
 
 
-    // <editor-fold defaultstate="collapsed" desc="Testing">
+   
 
 
-
-    // </editor-fold>
-
-
-    testjig_done(1, device_type);
+    //testjig_done(1, device_type);
 }
 
 void testjig_done(unsigned char state, unsigned char device_type)
